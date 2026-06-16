@@ -1,0 +1,208 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{wrapfig}
+\usepackage{xurl}
+
+
+\linespread{1}
+
+
+\pagestyle{fancy}
+\fancyhead[L]{Book of Specification : \textit{SpotiFind}}
+\fancyhead[R]{
+    \begin{minipage}{1.5cm}
+        \centering
+        \includegraphics[width=1cm]{illustrations/SpotiFind.png}
+    \end{minipage}
+}
+\fancyfoot[L]{
+    Lin Jérôme
+    \begin{minipage}{1.5cm}
+        \centering
+        \includegraphics[width=1cm]{illustrations/Epita.png}
+    \end{minipage}
+    }
+\fancyfoot[C]{
+    \begin{minipage}{1.5cm}
+        \centering
+        \includegraphics[width=1cm]{illustrations/Zelian.png}
+    \end{minipage}
+}
+\fancyfoot[R]{\thepage}
+
+
+\renewcommand{\footrulewidth}{0.1pt}
+\renewcommand{\sectionmark}[1]{}
+\renewcommand{\subsectionmark}[1]{}
+\renewcommand{\contentsname}{}
+
+
+\title{\textbf{Book of Specification}\\
+\textbf{\textit{SpotiFind}}}
+\date{June 2026}
+\author{
+    \begin{minipage}[c]{\textwidth}
+        \centering
+        \includegraphics[width=5in]{illustrations/SpotiFind.png}
+    \end{minipage}
+}
+
+
+
+
+
+
+
+
+
+
+\begin{document}
+
+\maketitle
+
+\vfill
+\begin{center}
+    \textbf{Lin Jérôme}\\
+    \textbf{EPITA}\\
+\end{center}
+
+
+
+
+
+\newpage
+\section{Context and objectives}
+\subsection{Project Context}
+As part of an ongoing internship at Zelian, this initial project serves as a practical, fast-paced immersion into the company's daily technical stack. Designed as a short-term introductory challenge to kickstart the integration process, the goal is to quickly get up to speed with modern web development standards by building a functional, production-ready mini-application.
+\\
+
+To simulate real-world production constraints within a highly compressed timeframe, the project focuses on consuming the external Spotify Web API. This requires implementing robust API token management—securely handling environment variables via a local $.env.local$ file without exposing sensitive credentials on version control systems like GitHub.
+\\
+
+Instead of a heavy desktop application, this web-based solution relies on Next.js (App Router) and TypeScript to deliver a fast, responsive, and type-safe user experience across both desktop and mobile devices.
+
+
+\subsection {Objectives}
+The primary objective is to develop Music Finder, a high-performance music exploration platform. Given the intensive and short-term nature of this introductory project, the focus is placed on delivery efficiency, modular architecture, and clean data integration under a tight deadline.
+\\
+
+The specific goals are structured as follows:
+\begin{itemize}
+    \item \textbf{Dynamic Routing \& Navigation:}
+    
+    Implement a seamless, interconnected architecture using Next.js App Router with at least two main pages, including dynamic routing (e.g., $/artist/[id]$ and $/album/[id]$) to explore specific music entities.
+
+    \item \textbf{API Integration \& Token Management:}
+
+    Establish a secure connection with the Spotify API using the Client Credentials flow. Master the lifecycle of an access token, including secure local storage via $.env.local$ and handling mandatory API states (loading skeletons, error handling/token expiration, and empty results).
+
+    \item \textbf{Component-Driven Architecture:}
+
+    Build reusable, strictly-typed UI components (such as search bars, generic media cards, and action buttons) using TypeScript props to ensure code maintainability and scalability throughout the rest of the internship.
+
+    \item \textbf{Data Persistence (Bonus Objective):}
+
+    To bypass the need for a complex backend or full User OAuth within this short project timeframe, utilize browser $LocalStorage$ to allow users to save and manage their favorite tracks locally via a dedicated static page ($/favorites$).
+\end{itemize}
+
+
+
+
+
+\section{Functional description}
+The system provides an intuitive web interface to search, explore, and organize musical content by consuming the Spotify Web API. It allows real-time data visualization and client-side data persistence.
+
+
+
+\subsection{Music Exploration \& Search}
+Users can search for tracks, artists, or albums via a central search bar on the homepage. The application fetches data dynamically and displays results categorized into distinct sections. Each result is presented as a typed card component showing essential metadata (e.g., name, artwork, and sub-text).
+
+
+
+\subsection{Dynamic Fiche Views}
+The platform handles interconnected navigation using dynamic routing to explore specific entities:
+
+\begin{itemize}
+    \item \textbf{Artist Page (\texttt{/artist/[id]}):} Displays the artist's profile picture, follower count, their top 5 tracks, and an exhaustive list of their albums.
+    \item \textbf{Album Page (\texttt{/album/[id]}):} Shows the album cover, release date, artist name, and the complete cliquable tracklist.
+\end{itemize}
+
+Clicking on an album card from the Artist page or a result card from the homepage smoothly redirects the user to the corresponding dynamic view.
+
+
+
+\subsection{Data Persistence \& Favorites}
+
+To bypass backend storage constraints within this short timeframe, the application utilizes browser \texttt{LocalStorage}. A dedicated static page (\texttt{/favorites}) fetches and lists all tracks bookmarked by the user. A "heart" icon toggle button on media cards allows instant addition or removal of tracks from local storage.
+
+
+
+\subsection{User Interface \& Experience}
+
+The UI is built with a responsive, mobile-friendly component-driven layout. It natively handles three mandatory API states to ensure a seamless UX:
+
+\begin{itemize}
+    \item \textbf{Loading State:} Displays skeleton components while fetching API data.
+    \item \textbf{Error State:} Shows clear error alerts in case of API token expiration or network failure.
+    \item \textbf{Empty State:} Provides explicit feedback when a search query yields no results.
+\end{itemize}  
+
+
+
+
+
+\section{Technical constraints}
+The development process is governed by strict technical limitations to ensure cross-platform compatibility and fast delivery:
+
+\begin{itemize}
+    \item \textbf{Framework \& Language:} Built using \textbf{Next.js (App Router)} and \textbf{TypeScript} for robust type safety, component reusability, and native file-system routing.
+    \item \textbf{API Consumption:} Relies on the external \textbf{Spotify Web API} via the \textit{Client Credentials} flow to manage application-level authentication tokens.
+    \item \textbf{Security \& Environment:} Sensitive credentials must be stored locally within a \texttt{.env.local} file. The actual API key must never be committed to Git; only a template file named \texttt{.env.example} is tracked on the repository.
+    \item \textbf{Deployment \& Optimization:} The application must be structured for easy compilation and hosting, optimized for fluid rendering on both desktop and mobile screens.
+\end{itemize} 
+
+
+
+
+
+\newpage
+\section{Project organization}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Phase} & \textbf{Micro-Tasks \& Deliverables} \\
+        \hline
+        \textbf{Setup} & Initialization of Next.js project with TypeScript \\
+                       & Structure of \texttt{src/app} directory (App Router layout) \\
+                       & Creation of \texttt{.env.local} and \texttt{.env.example} templates \\
+        \hline
+        \textbf{Core} & Script for Spotify API token acquisition (Client Credentials) \\
+                      & Validation of token expiration and lifecycle handler \\
+                      & Setting up native global styles and responsive container \\
+        \hline
+        \textbf{Features} & Global search bar query handler on homepage (\texttt{/}) \\
+                          & Dynamic routing implementation for artists (\texttt{/artist/[id]}) \\
+                          & Dynamic routing implementation for albums (\texttt{/album/[id]}) \\
+        \hline
+        \textbf{UX/UI} & Creation of reusable strictly-typed media components (\texttt{Card}) \\
+                       & Implementation of Skeleton loading screens \\
+                       & Implementation of Error banner and Empty State alerts \\
+        \hline
+        \textbf{Bonus} & Setup of browser \texttt{LocalStorage} interactions \\
+                       & Design of the static bookmarks summary page (\texttt{/favorites}) \\
+                       & Activation of the toggle "heart" button on media cards \\
+        \hline
+    \end{tabular}
+\end{table}\
+
+\end{document}

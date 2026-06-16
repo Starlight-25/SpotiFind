@@ -1,0 +1,62 @@
+# Fichiers auxiliaires LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.xdy
+
+# Bibliographie
+*.nav
+*.snm
+
+# Latexmk
+*.dvi
+*.ps
+
+# Minted
+_minted*
+*.pyg
+
+# TikZ / PGF
+*.dpth
+*.md5
+
+# Arara
+*.vrb
+
+# Beamer
+*.nav
+*.snm
+
+# Fichiers temporaires d'éditeur
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Dossiers d'IDE
+.vscode/
+.idea/
+
+# PDF généré (décommentez si vous ne souhaitez pas versionner les PDF)
+# *.pdf
