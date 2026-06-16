@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSpotifyToken } from "@/lib/spotify";
-
-const SPOTIFY_API = "https://api.spotify.com/v1";
+import { fetchSpotify } from "@/lib/spotify";
 
 /**
  * Proxy route: forwards requests to the Spotify API server-side.
@@ -16,25 +14,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing `path` query parameter." }, { status: 400 });
   }
 
-  let token: string;
+  let res: Response;
   try {
-    token = await getSpotifyToken();
+    res = await fetchSpotify(spotifyPath);
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 
-  const url = `${SPOTIFY_API}${spotifyPath}`;
-
-  const spotifyRes = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: "no-store",
-  });
-
-  const data = await spotifyRes.json();
-
-  if (!spotifyRes.ok) {
-    return NextResponse.json(data, { status: spotifyRes.status });
-  }
-
-  return NextResponse.json(data);
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
 }
