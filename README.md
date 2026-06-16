@@ -1,59 +1,27 @@
-# Project Name
+# SpotiFind
+![alt text](SpotiFind.png)
 
 ## 📖 Introduction
-(TODO)
+SpotiFind is a high-performance web platform designed to search, explore, and organize musical content in real time by leveraging the external Spotify Web API. Developed using Next.js (App Router) and TypeScript, this application provides a fast, fully responsive, and type-safe experience across both desktop and mobile devices.
 
-## 💾 Installation
-### 🪟 On Windows (7, 8, 10, 11):
-* Download the installer ([TODO](TODO))
-* Run the installer (TODO) and follow the instructions
-* Follow the instructions of the installer:
-  * Choose your preferred language
-  * Accept the terms and conditions
-  * Select the installation directory (default: C:\Program Files\TODO)
-  * Choose whether to create a desktop shortcut or not by checking/unchecking the option
-  * Click Install
-* After installation:
-  * Optionally check ”Launch TODO”
-  * Click Finish to close the installer
+This project was built from scratch as an intensive integration challenge during an ongoing engineering internship at Zelian.
 
-You can launch the software in two ways:
-* From the desktop (if shortcut was created):  
-  Double-click the TODO icon.
-* From the Start Menu:  
-  Go to Start > TODO > Open
+## 🛠️ Tech Stack & Key Features
 
-### 🐧 On Linux:
-* Download the tar file (TODO.tar):  
-  [TODO](TODO)
-```bash
-tar -xvzf TODO.tar.gz
-cd TODO
-```
-* Make the main executable runnable:
-```bash
-chmod +x TODO.x86_64
-./ TODO.x86_64
-```
-## ❌ Uninstallation
-### 🪟 On Windows:
-* Open Control Panel > Programs > Uninstall a program
-* Select TODO and click Uninstall  
-Or:
-* Use the Uninstall TODO shortcut from the Start Menu
+* **Framework & Language:** Next.js 14+ (App Router) & TypeScript for robust type safety and native file-system routing.
+* **API Integration:** Consumes the Spotify Web API using the secure *Client Credentials* flow.
+* **Component-Driven UI:** Built with reusable, strictly-typed UI components (Search Bar, Media Cards, Skeleton Loaders).
+* **Data Persistence:** Client-side favorites management using browser `LocalStorage` (no complex backend required).
+* **UX State Management:** Built-in handling for Loading, Error (token expiration), and Empty states.
 
-### 🐧 On Linux:
-```bash
-rm -rf ~/ TODO
-```
+## 📂 Project Architecture
 
-## ⌨️ Commands (Optionnal)
-| Action                                          | Key                               |
-|-------------------------------------------------|-----------------------------------|
-| Return / Settings Menu                          | ESC                               |
+The application implements dynamic routing and smooth navigation across the following views:
 
-## 🛠️ Usage
-TODO
+* `src/app/page.tsx` — **Homepage & Global Search:** Features a central search bar fetching real-time results categorized into Artists, Albums, and Tracks.
+* `src/app/artist/[id]/page.tsx` — **Dynamic Artist Profile:** Displays the artist's artwork, follower count, top 5 popular tracks, and their complete album list.
+* `src/app/album/[id]/page.tsx` — **Dynamic Album Page:** Displays the album cover, release metadata, and a complete clickable tracklist.
+* `src/app/favorites/page.tsx` — **Static Favorites Summary:** Lists all tracks bookmarked by the user locally.
 
 ## 📜 License
 Copyright (c) 2026 Starlight
