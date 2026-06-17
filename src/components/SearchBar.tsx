@@ -40,7 +40,7 @@ export default function SearchBar({
         value={query}
         onChange={handleChange}
         placeholder={placeholder}
-        className="w-full pl-9 pr-4 py-2 rounded border-2 border-foreground bg-surface text-foreground placeholder:text-muted outline-none focus:border-spotify transition-colors text-sm"
+        className="w-full pl-9 pr-4 py-2 rounded-full border-2 border-foreground bg-surface text-foreground placeholder:text-muted outline-none focus:border-spotify transition-colors text-sm"
       />
     </div>
   );
