@@ -1,24 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import SearchResults from "@/components/SearchResults";
 import HomeCharts from "@/components/HomeCharts";
 import { useSearch } from "@/hooks/useSearch";
 
+const SESSION_KEY = "spotifind_query";
+
 export default function HomeContent() {
-  const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState(initialQuery);
-  const { results, loading, error } = useSearch(query);
+  const [query, setQuery] = useState("");
+  const { results, loading, error } = useSearch(query.trim());
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SESSION_KEY) ?? "";
+    if (saved) setQuery(saved);
+  }, []);
 
   function handleSearch(value: string) {
+    const trimmed = value.trim();
     setQuery(value);
-    const params = new URLSearchParams();
-    if (value) params.set("q", value);
-    window.history.replaceState(null, "", `/?${params.toString()}`);
+    if (trimmed) sessionStorage.setItem(SESSION_KEY, trimmed);
+    else sessionStorage.removeItem(SESSION_KEY);
   }
 
   return (
@@ -33,7 +37,7 @@ export default function HomeContent() {
       </header>
 
       <main className="pt-10 pb-6 flex-1 min-h-0 flex flex-col overflow-hidden">
-        <SearchBar onSearch={handleSearch} defaultValue={initialQuery} />
+        <SearchBar value={query} onSearch={handleSearch} />
 
         {!query && <HomeCharts />}
 
