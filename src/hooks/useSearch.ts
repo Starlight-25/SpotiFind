@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { SearchResults } from "@/lib/spotify-types";
+import type { SearchResults } from "@/lib/music-types";
 
 export function useSearch(query: string, debounceMs = 400) {
   const [results, setResults] = useState<SearchResults | null>(null);
@@ -27,31 +27,24 @@ export function useSearch(query: string, debounceMs = 400) {
       setError(null);
 
       try {
-        const path = `/search?q=${encodeURIComponent(query)}&type=track,artist,album&limit=5`;
-        const res = await fetch(`/api/spotify?path=${encodeURIComponent(path)}`, {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
           signal: controller.signal,
         });
 
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          console.error("Spotify search error:", res.status, body);
-          throw new Error(`Search failed (${res.status})`);
-        }
+        if (!res.ok) throw new Error(`Search failed (${res.status})`);
 
         const data = await res.json();
         setResults({
-          tracks: data.tracks?.items ?? [],
-          artists: data.artists?.items ?? [],
-          albums: data.albums?.items ?? [],
+          tracks: data.tracks ?? [],
+          artists: data.artists ?? [],
+          albums: data.albums ?? [],
         });
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           setError("Something went wrong. Please try again.");
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        if (!controller.signal.aborted) setLoading(false);
       }
     }, debounceMs);
 

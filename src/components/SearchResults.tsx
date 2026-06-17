@@ -1,55 +1,66 @@
 import Image from "next/image";
-import type { SearchResults, SpotifyTrack, SpotifyArtist, SpotifyAlbum } from "@/lib/spotify-types";
+import type { SearchResults, LastfmTrack, LastfmArtist, LastfmAlbum, LastfmImage } from "@/lib/music-types";
 
-function formatDuration(ms: number) {
-  const m = Math.floor(ms / 60000);
-  const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, "0");
-  return `${m}:${s}`;
+function getImage(images: LastfmImage[], size: "large" | "extralarge" = "large") {
+  const img = images?.find(i => i.size === size);
+  return img?.["#text"] || images?.find(i => i["#text"])?.["#text"] || "";
 }
 
-function TrackCard({ track }: { track: SpotifyTrack }) {
-  const cover = track.album.images[2]?.url ?? track.album.images[0]?.url;
+function TrackCard({ track }: { track: LastfmTrack }) {
+  const cover = getImage(track.image);
   return (
     <div className="flex items-center gap-3 py-2">
-      {cover && (
-        <Image src={cover} alt={track.album.name} width={40} height={40} className="rounded flex-shrink-0" />
+      {cover ? (
+        <Image src={cover} alt={track.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
+      ) : (
+        <div className="w-10 h-10 rounded bg-border flex-shrink-0" />
       )}
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground truncate">{track.name}</p>
-        <p className="text-xs text-muted truncate">{track.artists.map(a => a.name).join(", ")}</p>
+        <p className="text-xs text-muted truncate">{track.artist}</p>
       </div>
-      <span className="ml-auto text-xs text-muted flex-shrink-0">{formatDuration(track.duration_ms)}</span>
+      {track.listeners && (
+        <span className="ml-auto text-xs text-muted flex-shrink-0">
+          {Number(track.listeners).toLocaleString()} listeners
+        </span>
+      )}
     </div>
   );
 }
 
-function ArtistCard({ artist }: { artist: SpotifyArtist }) {
-  const image = artist.images[2]?.url ?? artist.images[0]?.url;
+function ArtistCard({ artist }: { artist: LastfmArtist }) {
+  const cover = getImage(artist.image);
   return (
     <div className="flex items-center gap-3 py-2">
-      {image ? (
-        <Image src={image} alt={artist.name} width={40} height={40} className="rounded-full flex-shrink-0 object-cover" />
+      {cover ? (
+        <Image src={cover} alt={artist.name} width={40} height={40} className="rounded-full flex-shrink-0 object-cover" />
       ) : (
-        <div className="w-10 h-10 rounded-full bg-border flex-shrink-0" />
+        <div className="w-10 h-10 rounded-full bg-border flex-shrink-0 flex items-center justify-center text-muted text-xs font-bold uppercase">
+          {artist.name.charAt(0)}
+        </div>
       )}
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground truncate">{artist.name}</p>
-        <p className="text-xs text-muted truncate">{artist.genres.slice(0, 2).join(", ")}</p>
+        {artist.listeners && (
+          <p className="text-xs text-muted truncate">{Number(artist.listeners).toLocaleString()} listeners</p>
+        )}
       </div>
     </div>
   );
 }
 
-function AlbumCard({ album }: { album: SpotifyAlbum }) {
-  const cover = album.images[2]?.url ?? album.images[0]?.url;
+function AlbumCard({ album }: { album: LastfmAlbum }) {
+  const cover = getImage(album.image);
   return (
     <div className="flex items-center gap-3 py-2">
-      {cover && (
-        <Image src={cover} alt={album.name} width={40} height={40} className="rounded flex-shrink-0" />
+      {cover ? (
+        <Image src={cover} alt={album.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
+      ) : (
+        <div className="w-10 h-10 rounded bg-border flex-shrink-0" />
       )}
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground truncate">{album.name}</p>
-        <p className="text-xs text-muted truncate">{album.artists.map(a => a.name).join(", ")} · {album.release_date.slice(0, 4)}</p>
+        <p className="text-xs text-muted truncate">{album.artist}</p>
       </div>
     </div>
   );
@@ -74,17 +85,17 @@ export default function SearchResults({ results }: { results: SearchResults }) {
       <Column title="Tracks">
         {results.tracks.length === 0
           ? <p className="text-sm text-muted py-2">No results</p>
-          : results.tracks.map(t => <TrackCard key={t.id} track={t} />)}
+          : results.tracks.map((t, i) => <TrackCard key={t.mbid || i} track={t} />)}
       </Column>
       <Column title="Artists">
         {results.artists.length === 0
           ? <p className="text-sm text-muted py-2">No results</p>
-          : results.artists.map(a => <ArtistCard key={a.id} artist={a} />)}
+          : results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
       </Column>
       <Column title="Albums">
         {results.albums.length === 0
           ? <p className="text-sm text-muted py-2">No results</p>
-          : results.albums.map(a => <AlbumCard key={a.id} album={a} />)}
+          : results.albums.map((a, i) => <AlbumCard key={a.mbid || i} album={a} />)}
       </Column>
     </div>
   );
