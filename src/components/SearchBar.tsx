@@ -5,13 +5,15 @@ import { useState } from "react";
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  defaultValue?: string;
 }
 
 export default function SearchBar({
   onSearch,
   placeholder = "Search artists, albums, tracks…",
+  defaultValue = "",
 }: SearchBarProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(defaultValue);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
