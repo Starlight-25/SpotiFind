@@ -11,8 +11,8 @@ export default function Home() {
   const { results, loading, error } = useSearch(query);
 
   return (
-    <div>
-      <header className="py-8 border-b-2 border-foreground text-center">
+    <div className="flex flex-col h-screen">
+      <header className="py-8 border-b-2 border-foreground text-center flex-shrink-0">
         <div className="flex items-center justify-center gap-3">
           <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
           <h1 className="text-4xl font-semibold tracking-tight text-spotify">
@@ -21,7 +21,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="py-10">
+      <main className="pt-10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <SearchBar onSearch={setQuery} />
 
         {loading && (

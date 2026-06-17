@@ -36,20 +36,15 @@ function TrackCard({ track }: { track: LastfmTrack }) {
 function ArtistCard({ artist }: { artist: LastfmArtist }) {
   const cover = artist.thumb || getImage(artist.image);
   return (
-    <div className="flex items-center gap-3 py-2">
+    <div className="flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)]">
       {cover ? (
-        <Image src={cover} alt={artist.name} width={40} height={40} className="rounded-full flex-shrink-0 object-cover" />
+        <Image src={cover} alt={artist.name} width={112} height={112} className="rounded-full object-cover w-28 h-28" />
       ) : (
-        <div className="w-10 h-10 rounded-full bg-border flex-shrink-0 flex items-center justify-center text-muted text-xs font-bold uppercase">
+        <div className="w-28 h-28 rounded-full bg-border flex items-center justify-center text-muted text-3xl font-bold uppercase">
           {artist.name.charAt(0)}
         </div>
       )}
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-foreground truncate">{artist.name}</p>
-        {artist.listeners && (
-          <p className="text-xs text-muted truncate">{Number(artist.listeners).toLocaleString()} listeners</p>
-        )}
-      </div>
+      <p className="text-xs font-medium text-foreground text-center leading-tight line-clamp-2 w-full">{artist.name}</p>
     </div>
   );
 }
@@ -76,11 +71,11 @@ function AlbumCard({ album }: { album: LastfmAlbum }) {
 
 function Column({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
+    <div className="flex flex-col min-h-0">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border flex-shrink-0">
         {title}
       </h2>
-      <div className="divide-y divide-border max-h-[260px] overflow-y-auto">
+      <div className="flex-1 overflow-y-auto divide-y divide-border">
         {children}
       </div>
     </div>
@@ -89,22 +84,34 @@ function Column({ title, children }: { title: string; children: React.ReactNode 
 
 export default function SearchResults({ results }: { results: SearchResults }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-      <Column title="Tracks">
-        {results.tracks.length === 0
-          ? <p className="text-sm text-muted py-2">No results</p>
-          : results.tracks.map((t, i) => <TrackCard key={t.mbid || i} track={t} />)}
-      </Column>
-      <Column title="Artists">
-        {results.artists.length === 0
-          ? <p className="text-sm text-muted py-2">No results</p>
-          : results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
-      </Column>
-      <Column title="Albums">
-        {results.albums.length === 0
-          ? <p className="text-sm text-muted py-2">No results</p>
-          : results.albums.map((a, i) => <AlbumCard key={a.mbid || i} album={a} />)}
-      </Column>
+    <div className="mt-8 flex-1 min-h-0 flex flex-col">
+      {/* Artists — full width, 5 visible, horizontal scroll */}
+      <div className="flex-shrink-0 mb-8">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+          Artistes
+        </h2>
+        {results.artists.length === 0 ? (
+          <p className="text-sm text-muted py-2">No results</p>
+        ) : (
+          <div className="flex gap-4 overflow-x-auto pb-2">
+            {results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
+          </div>
+        )}
+      </div>
+
+      {/* Tracks + Albums — fill remaining height to bottom */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Column title="Tracks">
+          {results.tracks.length === 0
+            ? <p className="text-sm text-muted py-2">No results</p>
+            : results.tracks.map((t, i) => <TrackCard key={t.mbid || i} track={t} />)}
+        </Column>
+        <Column title="Albums">
+          {results.albums.length === 0
+            ? <p className="text-sm text-muted py-2">No results</p>
+            : results.albums.map((a, i) => <AlbumCard key={a.mbid || i} album={a} />)}
+        </Column>
+      </div>
     </div>
   );
 }
