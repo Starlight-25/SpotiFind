@@ -36,7 +36,10 @@ function TrackCard({ track }: { track: LastfmTrack }) {
 function ArtistCard({ artist }: { artist: LastfmArtist }) {
   const cover = artist.thumb || getImage(artist.image);
   return (
-    <div className="flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)]">
+    <Link
+      href={`/artist/${encodeURIComponent(artist.name)}`}
+      className="flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)] hover:opacity-80 transition-opacity"
+    >
       {cover ? (
         <Image src={cover} alt={artist.name} width={112} height={112} className="rounded-full object-cover w-28 h-28" />
       ) : (
@@ -45,7 +48,7 @@ function ArtistCard({ artist }: { artist: LastfmArtist }) {
         </div>
       )}
       <p className="text-xs font-medium text-foreground text-center leading-tight line-clamp-2 w-full">{artist.name}</p>
-    </div>
+    </Link>
   );
 }
 
