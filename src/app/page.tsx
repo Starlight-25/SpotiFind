@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 
 export default function Home() {
@@ -9,10 +10,13 @@ export default function Home() {
 
   return (
     <div>
-      <header className="py-8 border-b border-border text-center">
-        <h1 className="text-4xl font-semibold tracking-tight text-spotify">
-          SpotiFind
-        </h1>
+      <header className="py-8 border-b-2 border-foreground text-center">
+        <div className="flex items-center justify-center gap-3">
+          <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
+          <h1 className="text-4xl font-semibold tracking-tight text-spotify">
+            SpotiFind
+          </h1>
+        </div>
       </header>
 
       <main className="py-10">
