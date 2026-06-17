@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { encodeAlbumSlug } from "@/lib/album-utils";
 import type { SearchResults, LastfmTrack, LastfmArtist, LastfmAlbum, LastfmImage } from "@/lib/music-types";
 
 function getImage(images: LastfmImage[], size: "large" | "extralarge" = "large") {
@@ -9,7 +11,10 @@ function getImage(images: LastfmImage[], size: "large" | "extralarge" = "large")
 function TrackCard({ track }: { track: LastfmTrack }) {
   const cover = getImage(track.image);
   return (
-    <div className="flex items-center gap-3 py-2">
+    <Link
+      href={`/album/${encodeAlbumSlug(track.artist, track.name)}?isTrack=1`}
+      className="flex items-center gap-3 py-2 rounded hover:bg-border transition-colors"
+    >
       {cover ? (
         <Image src={cover} alt={track.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
       ) : (
@@ -24,7 +29,7 @@ function TrackCard({ track }: { track: LastfmTrack }) {
           {Number(track.listeners).toLocaleString()} listeners
         </span>
       )}
-    </div>
+    </Link>
   );
 }
 
@@ -52,7 +57,10 @@ function ArtistCard({ artist }: { artist: LastfmArtist }) {
 function AlbumCard({ album }: { album: LastfmAlbum }) {
   const cover = getImage(album.image);
   return (
-    <div className="flex items-center gap-3 py-2">
+    <Link
+      href={`/album/${encodeAlbumSlug(album.artist, album.name)}`}
+      className="flex items-center gap-3 py-2 rounded hover:bg-border transition-colors"
+    >
       {cover ? (
         <Image src={cover} alt={album.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
       ) : (
@@ -62,7 +70,7 @@ function AlbumCard({ album }: { album: LastfmAlbum }) {
         <p className="text-sm font-medium text-foreground truncate">{album.name}</p>
         <p className="text-xs text-muted truncate">{album.artist}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
