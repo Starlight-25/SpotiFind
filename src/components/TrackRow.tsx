@@ -7,7 +7,7 @@ interface TrackRowProps {
 function formatDuration(seconds: string): string | null {
   const n = Number(seconds);
   if (!n) return null;
-  return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+  return `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, "0")}`;
 }
 
 export default function TrackRow({ rank, name, duration }: TrackRowProps) {
