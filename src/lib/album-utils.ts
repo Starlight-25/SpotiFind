@@ -5,7 +5,15 @@ export function encodeAlbumSlug(artist: string, name: string): string {
 }
 
 export function decodeAlbumSlug(slug: string): { artist: string; name: string } {
-  const idx = slug.indexOf(SEP);
+  // Normalize: try decoding in case Next.js didn't pre-decode the path param.
+  // If decoding fails (literal % in name after pre-decode), use the slug as-is.
+  let s = slug;
+  try {
+    s = decodeURIComponent(slug);
+  } catch {
+    // keep s = slug
+  }
+  const idx = s.indexOf(SEP);
   if (idx === -1) throw new Error(`Invalid album slug: ${slug}`);
-  return { artist: slug.slice(0, idx), name: slug.slice(idx + SEP.length) };
+  return { artist: s.slice(0, idx), name: s.slice(idx + SEP.length) };
 }
