@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import SearchResults from "@/components/SearchResults";
@@ -8,8 +9,17 @@ import HomeCharts from "@/components/HomeCharts";
 import { useSearch } from "@/hooks/useSearch";
 
 export default function HomeContent() {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(initialQuery);
   const { results, loading, error } = useSearch(query);
+
+  function handleSearch(value: string) {
+    setQuery(value);
+    const params = new URLSearchParams();
+    if (value) params.set("q", value);
+    window.history.replaceState(null, "", `/?${params.toString()}`);
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -23,7 +33,7 @@ export default function HomeContent() {
       </header>
 
       <main className="pt-10 pb-6 flex-1 min-h-0 flex flex-col overflow-hidden">
-        <SearchBar onSearch={setQuery} />
+        <SearchBar onSearch={handleSearch} defaultValue={initialQuery} />
 
         {!query && <HomeCharts />}
 
