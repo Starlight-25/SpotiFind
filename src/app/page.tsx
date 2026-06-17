@@ -21,7 +21,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="pt-10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <main className="pt-10 pb-6 flex-1 min-h-0 flex flex-col overflow-hidden">
         <SearchBar onSearch={setQuery} />
 
         {loading && (
