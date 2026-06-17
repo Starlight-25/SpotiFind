@@ -9,6 +9,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "lastfm.freetls.fastly.net",
       },
+      {
+        protocol: "https",
+        hostname: "www.theaudiodb.com",
+      },
+      {
+        protocol: "https",
+        hostname: "r2.theaudiodb.com",
+      },
     ],
   },
 };

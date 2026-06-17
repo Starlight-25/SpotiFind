@@ -34,7 +34,7 @@ function TrackCard({ track }: { track: LastfmTrack }) {
 }
 
 function ArtistCard({ artist }: { artist: LastfmArtist }) {
-  const cover = getImage(artist.image);
+  const cover = artist.thumb || getImage(artist.image);
   return (
     <div className="flex items-center gap-3 py-2">
       {cover ? (

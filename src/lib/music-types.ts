@@ -18,6 +18,7 @@ export interface LastfmArtist {
   url: string;
   image: LastfmImage[];
   mbid: string;
+  thumb?: string;
 }
 
 export interface LastfmAlbum {
