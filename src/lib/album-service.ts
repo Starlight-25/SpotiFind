@@ -37,7 +37,8 @@ export async function fetchAlbumByName(
       image: raw.image ?? [],
       tracks: normalizeTracks(raw.tracks?.track),
     };
-  } catch {
+  } catch (err) {
+    console.error("[album-service] fetchAlbumByName", err);
     return null;
   }
 }
@@ -53,7 +54,8 @@ export async function fetchAlbumForTrack(
     const albumName = data?.track?.album?.title;
     if (!albumName) return null;
     return fetchAlbumByName(artist, albumName);
-  } catch {
+  } catch (err) {
+    console.error("[album-service] fetchAlbumForTrack", err);
     return null;
   }
 }
