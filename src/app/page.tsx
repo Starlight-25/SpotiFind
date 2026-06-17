@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
+import SearchResults from "@/components/SearchResults";
+import { useSearch } from "@/hooks/useSearch";
 
 export default function Home() {
-  function handleSearch(query: string) {
-    console.log("search:", query);
-  }
+  const [query, setQuery] = useState("");
+  const { results, loading, error } = useSearch(query);
 
   return (
     <div>
@@ -20,7 +22,19 @@ export default function Home() {
       </header>
 
       <main className="py-10">
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={setQuery} />
+
+        {loading && (
+          <p className="text-sm text-muted text-center mt-8">Searching…</p>
+        )}
+
+        {error && (
+          <p className="text-sm text-red-500 text-center mt-8">{error}</p>
+        )}
+
+        {results && !loading && (
+          <SearchResults results={results} />
+        )}
       </main>
     </div>
   );

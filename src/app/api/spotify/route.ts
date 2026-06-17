@@ -18,9 +18,17 @@ export async function GET(req: NextRequest) {
   try {
     res = await fetchSpotify(spotifyPath);
   } catch (err) {
+    console.error("[spotify route] fetchSpotify threw:", err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  const text = await res.text();
+  console.log(`[spotify route] status=${res.status} body=${text.slice(0, 300)}`);
+
+  try {
+    const data = JSON.parse(text);
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Spotify returned non-JSON", raw: text.slice(0, 300) }, { status: 502 });
+  }
 }
