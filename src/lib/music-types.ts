@@ -33,3 +33,16 @@ export interface SearchResults {
   artists: LastfmArtist[];
   albums: LastfmAlbum[];
 }
+
+export interface LastfmTrackDetail {
+  name: string;
+  duration: string;
+  "@attr"?: { rank: string };
+}
+
+export interface AlbumDetail {
+  name: string;
+  artist: string;
+  image: LastfmImage[];
+  tracks: LastfmTrackDetail[];
+}
