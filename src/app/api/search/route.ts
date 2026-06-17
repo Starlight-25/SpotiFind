@@ -13,7 +13,7 @@ function getAudioDbKey() {
   return process.env.THEAUDIODB_API_KEY ?? "123";
 }
 
-async function lastfmSearch(method: string, field: string, query: string, limit = 5) {
+async function lastfmSearch(method: string, field: string, query: string, limit = 10) {
   const url = `${LASTFM_BASE}?method=${method}&${field}=${encodeURIComponent(query)}&api_key=${getLastfmKey()}&format=json&limit=${limit}`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Last.fm error ${res.status} for method=${method}`);

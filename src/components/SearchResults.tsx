@@ -80,7 +80,7 @@ function Column({ title, children }: { title: string; children: React.ReactNode 
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
         {title}
       </h2>
-      <div className="divide-y divide-border max-h-[420px] overflow-y-auto">
+      <div className="divide-y divide-border max-h-[260px] overflow-y-auto">
         {children}
       </div>
     </div>
