@@ -38,9 +38,9 @@ export async function fetchAlbumByName(
       tracks.map(async (track) => {
         try {
           const info = (await lastfmGet({ method: "track.getInfo", artist: raw.artist, track: track.name })) as {
-            track?: { listeners?: string };
+            track?: { listeners?: string; playcount?: string };
           };
-          return { ...track, listeners: info?.track?.listeners };
+          return { ...track, listeners: info?.track?.listeners, playcount: info?.track?.playcount };
         } catch {
           return track;
         }

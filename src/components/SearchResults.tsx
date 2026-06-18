@@ -28,11 +28,11 @@ function TrackCard({ track }: { track: LastfmTrack }) {
         <p className="text-sm font-medium text-foreground truncate">{track.name}</p>
         <p className="text-xs text-muted truncate">{track.artist}</p>
       </div>
-      {track.listeners && (
-        <span className="ml-auto text-xs text-muted flex-shrink-0">
-          {Number(track.listeners).toLocaleString()} listeners
-        </span>
-      )}
+      <span className="ml-auto text-xs text-muted flex-shrink-0 tabular-nums w-10 text-right">
+        {track.duration && Number(track.duration) > 0
+          ? `${Math.floor(Number(track.duration) / 1000 / 60)}:${String(Math.floor((Number(track.duration) / 1000) % 60)).padStart(2, "0")}`
+          : ""}
+      </span>
       <HeartButton
         id={buildFavouriteId("track", track.name, track.artist)}
         kind="track"
@@ -103,7 +103,7 @@ export default function SearchResults({ results }: { results: SearchResults }) {
       {/* Artists — full width, 5 visible, horizontal scroll */}
       <div className="flex-shrink-0 mb-8">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
-          Artistes
+          Artists
         </h2>
         {results.artists.length === 0 ? (
           <EmptyState title="Aucun artiste trouvé" subtitle="Essaie un autre nom." />

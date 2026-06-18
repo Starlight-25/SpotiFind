@@ -25,7 +25,7 @@ export default function TrackList({ tracks, albumArtist, albumImageUrl, albumHre
           rank={Number(track["@attr"]?.rank ?? i + 1)}
           name={track.name}
           duration={track.duration}
-          listeners={track.listeners}
+          playcount={track.playcount}
           favouriteItem={albumArtist && albumHref ? {
             id: buildFavouriteId("track", track.name, albumArtist),
             kind: "track",

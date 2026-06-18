@@ -10,6 +10,7 @@ export interface LastfmTrack {
   listeners: string;
   image: LastfmImage[];
   mbid: string;
+  duration?: string;
 }
 
 export interface LastfmArtist {
@@ -39,6 +40,7 @@ export interface LastfmTrackDetail {
   name: string;
   duration: string;
   listeners?: string;
+  playcount?: string;
   "@attr"?: { rank: string };
 }
 
@@ -56,6 +58,8 @@ export interface ArtistTopTrack {
   imageUrl: string | null;
   albumName: string | null;
   listeners: string | null;
+  playcount?: string | null;
+  duration?: string | null;
 }
 
 export interface ArtistAlbum {
