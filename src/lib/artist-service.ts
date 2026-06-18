@@ -24,24 +24,55 @@ export async function fetchArtistByName(name: string): Promise<ArtistDetail | nu
   }
 }
 
+async function fetchLastfmTopTracks(name: string): Promise<ArtistTopTrack[]> {
+  try {
+    const apiKey = process.env.LASTFM_API_KEY;
+    if (!apiKey) return [];
+    const qs = new URLSearchParams({
+      method: "artist.getTopTracks",
+      artist: name,
+      limit: "10",
+      api_key: apiKey,
+      format: "json",
+    });
+    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const tracks = data?.toptracks?.track;
+    if (!Array.isArray(tracks)) return [];
+    return tracks.map((t: { name: string; image: { "#text": string; size: string }[] }) => ({
+      name: t.name,
+      imageUrl:
+        t.image?.find((i) => i.size === "large")?.["#text"] ||
+        t.image?.find((i) => i["#text"])?.["#text"] ||
+        null,
+      albumName: null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchArtistSpotifyData(name: string): Promise<{
   topTracks: ArtistTopTrack[];
   albums: ArtistAlbum[];
 }> {
   try {
-    // 1. Get Spotify artist ID (artist: prefix for accurate match)
+    // 1. Get Spotify artist ID — plain name search, no field filter
     const searchRes = await fetchSpotify(
-      `/search?q=${encodeURIComponent(`artist:${name}`)}&type=artist&limit=1`
+      `/search?q=${encodeURIComponent(name)}&type=artist&limit=1`
     );
     if (!searchRes.ok) {
       console.error("[artist-service] Spotify search failed:", searchRes.status);
-      return { topTracks: [], albums: [] };
+      const fallback = await fetchLastfmTopTracks(name);
+      return { topTracks: fallback, albums: [] };
     }
     const searchData = await searchRes.json();
     const artistId = searchData?.artists?.items?.[0]?.id as string | undefined;
     if (!artistId) {
       console.error("[artist-service] No Spotify artist found for:", name);
-      return { topTracks: [], albums: [] };
+      const fallback = await fetchLastfmTopTracks(name);
+      return { topTracks: fallback, albums: [] };
     }
 
     // 2. Fetch top-tracks and albums in parallel
@@ -50,7 +81,7 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
       fetchSpotify(`/artists/${artistId}/albums?include_groups=album,single&limit=50`),
     ]);
 
-    // Top tracks (Spotify returns album info with images)
+    // Top tracks — Spotify includes album name + cover, fallback to Last.fm
     let topTracks: ArtistTopTrack[] = [];
     if (topTracksRes.ok) {
       const data = await topTracksRes.json();
@@ -58,15 +89,16 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
         name: string;
         album: { name: string; images: { url: string }[] };
       }>;
-      if (Array.isArray(tracks)) {
+      if (Array.isArray(tracks) && tracks.length > 0) {
         topTracks = tracks.slice(0, 10).map(t => ({
           name: t.name,
           imageUrl: t.album?.images?.[0]?.url ?? null,
           albumName: t.album?.name ?? null,
         }));
       }
-    } else {
-      console.error("[artist-service] Spotify top-tracks failed:", topTracksRes.status);
+    }
+    if (topTracks.length === 0) {
+      topTracks = await fetchLastfmTopTracks(name);
     }
 
     // Albums sorted newest first
@@ -94,6 +126,7 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
     return { topTracks, albums };
   } catch (err) {
     console.error("[artist-service] fetchArtistSpotifyData threw:", err);
-    return { topTracks: [], albums: [] };
+    const fallback = await fetchLastfmTopTracks(name);
+    return { topTracks: fallback, albums: [] };
   }
 }
