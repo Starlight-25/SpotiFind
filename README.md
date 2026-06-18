@@ -1,5 +1,5 @@
 # SpotiFind
-![alt text](SpotiFind.png)
+![logo.png](public/logo.png)
 
 ## 📖 Introduction
 SpotiFind is a high-performance web platform designed to search, explore, and organize musical content in real time by leveraging the external Spotify Web API. Developed using Next.js (App Router) and TypeScript, this application provides a fast, fully responsive, and type-safe experience across both desktop and mobile devices.
