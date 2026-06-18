@@ -97,27 +97,68 @@ async function fetchLastfmTopTracks(name: string): Promise<ArtistTopTrack[]> {
   }
 }
 
+async function fetchAudioDbYears(artist: string): Promise<Map<string, string>> {
+  // Returns a map of lowercase album name → "YYYY-01-01" release date
+  try {
+    // discography.php is only available on the public free key "2"
+    const res = await fetch(
+      `https://www.theaudiodb.com/api/v1/json/2/discography.php?s=${encodeURIComponent(artist)}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return new Map();
+    const data = await res.json();
+    const entries = data?.album as Array<{ strAlbum: string; intYearReleased: string }> | undefined;
+    if (!Array.isArray(entries)) return new Map();
+    const map = new Map<string, string>();
+    for (const e of entries) {
+      if (e.strAlbum && e.intYearReleased) {
+        map.set(e.strAlbum.toLowerCase(), `${e.intYearReleased}-01-01`);
+      }
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
 async function fetchLastfmTopAlbums(name: string): Promise<ArtistAlbum[]> {
   try {
     const apiKey = process.env.LASTFM_API_KEY;
     if (!apiKey) return [];
-    const qs = new URLSearchParams({
-      method: "artist.getTopAlbums",
-      artist: name,
-      limit: "20",
-      api_key: apiKey,
-      format: "json",
-    });
-    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
+
+    // Fetch Last.fm albums + TheAudioDB years in parallel (2 calls total)
+    const [lfmRes, yearMap] = await Promise.all([
+      fetch(
+        `https://ws.audioscrobbler.com/2.0/?${new URLSearchParams({
+          method: "artist.getTopAlbums",
+          artist: name,
+          limit: "20",
+          api_key: apiKey,
+          format: "json",
+        })}`,
+        { cache: "no-store" }
+      ),
+      fetchAudioDbYears(name),
+    ]);
+
+    if (!lfmRes.ok) return [];
+    const data = await lfmRes.json();
     const albums = data?.topalbums?.album;
     if (!Array.isArray(albums)) return [];
-    return (albums as { name: string; image: LastfmImage[] }[]).map((a) => ({
+
+    const enriched = (albums as { name: string; image: LastfmImage[] }[]).map((a) => ({
       name: a.name,
-      release_date: "",
+      release_date: yearMap.get(a.name.toLowerCase()) ?? "",
       imageUrl: pickLastfmImage(a.image),
     }));
+
+    // Sort most recent first — albums without a date go to the end
+    return enriched.sort((a, b) => {
+      if (!a.release_date && !b.release_date) return 0;
+      if (!a.release_date) return 1;
+      if (!b.release_date) return -1;
+      return b.release_date.localeCompare(a.release_date);
+    });
   } catch {
     return [];
   }
@@ -134,15 +175,21 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
     );
     if (!searchRes.ok) {
       console.error("[artist-service] Spotify search failed:", searchRes.status);
-      const fallback = await fetchLastfmTopTracks(name);
-      return { topTracks: fallback, albums: [] };
+      const [topTracks, albums] = await Promise.all([
+        fetchLastfmTopTracks(name),
+        fetchLastfmTopAlbums(name),
+      ]);
+      return { topTracks, albums };
     }
     const searchData = await searchRes.json();
     const artistId = searchData?.artists?.items?.[0]?.id as string | undefined;
     if (!artistId) {
       console.error("[artist-service] No Spotify artist found for:", name);
-      const fallback = await fetchLastfmTopTracks(name);
-      return { topTracks: fallback, albums: [] };
+      const [topTracks, albums] = await Promise.all([
+        fetchLastfmTopTracks(name),
+        fetchLastfmTopAlbums(name),
+      ]);
+      return { topTracks, albums };
     }
 
     // 2. Fetch top-tracks and albums in parallel
@@ -204,7 +251,10 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
     return { topTracks, albums };
   } catch (err) {
     console.error("[artist-service] fetchArtistSpotifyData threw:", err);
-    const fallback = await fetchLastfmTopTracks(name);
-    return { topTracks: fallback, albums: [] };
+    const [topTracks, albums] = await Promise.all([
+      fetchLastfmTopTracks(name),
+      fetchLastfmTopAlbums(name),
+    ]);
+    return { topTracks, albums };
   }
 }
