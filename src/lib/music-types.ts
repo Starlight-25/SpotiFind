@@ -18,6 +18,7 @@ export interface LastfmArtist {
   url: string;
   image: LastfmImage[];
   mbid: string;
+  thumb?: string;
 }
 
 export interface LastfmAlbum {
@@ -32,4 +33,17 @@ export interface SearchResults {
   tracks: LastfmTrack[];
   artists: LastfmArtist[];
   albums: LastfmAlbum[];
+}
+
+export interface LastfmTrackDetail {
+  name: string;
+  duration: string;
+  "@attr"?: { rank: string };
+}
+
+export interface AlbumDetail {
+  name: string;
+  artist: string;
+  image: LastfmImage[];
+  tracks: LastfmTrackDetail[];
 }

@@ -1,22 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import type { ChangeEvent } from "react";
 
 interface SearchBarProps {
+  value: string;
   onSearch: (query: string) => void;
   placeholder?: string;
 }
 
 export default function SearchBar({
+  value,
   onSearch,
   placeholder = "Search artists, albums, tracks…",
 }: SearchBarProps) {
-  const [query, setQuery] = useState("");
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    setQuery(value);
-    onSearch(value.trim());
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    onSearch(e.target.value);
   }
 
   return (
@@ -37,7 +35,7 @@ export default function SearchBar({
       </svg>
       <input
         type="text"
-        value={query}
+        value={value}
         onChange={handleChange}
         placeholder={placeholder}
         className="w-full pl-9 pr-4 py-2 rounded-full border-2 border-foreground bg-surface text-foreground placeholder:text-muted outline-none focus:border-spotify transition-colors text-sm"
