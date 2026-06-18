@@ -19,7 +19,7 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
       </h2>
       {tracks.map((track, i) => {
         const row = (
-          <div className="flex items-center gap-3 py-3 border-b border-border last:border-0 group-hover:bg-border group-hover:rounded transition-colors">
+          <div className="flex items-center gap-3 py-3 px-2 border-b border-border last:border-0 group-hover:bg-border group-hover:rounded transition-colors">
             <span className="w-5 text-right text-sm text-muted flex-shrink-0 tabular-nums">{i + 1}</span>
             {track.imageUrl ? (
               <Image
