@@ -27,17 +27,17 @@ function AlbumCard({ album }: { album: HomeAlbum }) {
   return (
     <Link
       href={`/album/${encodeAlbumSlug(album.artist, album.name)}`}
-      className="flex items-center gap-3 py-2 rounded hover:bg-border transition-colors"
+      className="flex flex-col hover:opacity-80 transition-opacity"
     >
       {album.image ? (
-        <Image src={album.image} alt={album.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
+        <Image src={album.image} alt={album.name} width={144} height={144} className="rounded object-cover w-full aspect-square" />
       ) : (
-        <div className="w-10 h-10 rounded bg-border flex-shrink-0" />
+        <div className="w-full aspect-square rounded bg-border flex items-center justify-center text-muted text-4xl font-bold uppercase">
+          {album.name.charAt(0)}
+        </div>
       )}
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-foreground truncate">{album.name}</p>
-        <p className="text-xs text-muted truncate">{album.artist}</p>
-      </div>
+      <p className="text-xs font-medium text-foreground mt-2 leading-tight line-clamp-2">{album.name}</p>
+      <p className="text-xs text-muted mt-0.5 truncate">{album.artist}</p>
     </Link>
   );
 }
@@ -62,11 +62,11 @@ export default function HomeCharts() {
       </div>
 
       {/* Nouveaux albums */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border flex-shrink-0">
+      <div className="flex-shrink-0">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
           Albums du moment
         </h2>
-        <div className="flex-1 overflow-y-auto divide-y divide-border">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
           {data.albums.map((a, i) => <AlbumCard key={i} album={a} />)}
         </div>
       </div>
