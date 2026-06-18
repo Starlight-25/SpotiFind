@@ -13,6 +13,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 - **artist-page — top tracks + albums** : `fetchArtistTopTracks()` (Last.fm `artist.getTopTracks`, limit=10) et `fetchArtistAlbums()` (Spotify search artist → albums triés par `release_date` desc) dans `artist-service.ts` ; composant `ArtistTopTracks` (liste numérotée avec playcount formaté) ; composant `ArtistAlbums` (grille cliquable via `<Link>` vers `/album/[encodeAlbumSlug]`, cover Spotify + année) ; page `/artist/[id]` mise à jour avec fetch parallèle (`Promise.all`) des trois sources et rendu des deux nouvelles sections
 
+- **scroll animation — composant `ScrollAnimator`** : nouveau Client Component réutilisable (`src/components/ScrollAnimator.tsx`) — monte un `IntersectionObserver` sur tous les éléments `.scroll-fade-in` avec direction awareness (CSS custom property `--slide-from` posée dynamiquement) et timing via `requestAnimationFrame` ; classe `scroll-fade-in` ajoutée sur chaque row de `ArtistTopTracks` et sur chaque card de `ArtistAlbums` ; `<ScrollAnimator />` injecté dans la page `/artist/[id]` (Server Component) et dans `/favourites` (remplace l'`IntersectionObserver` inline, `deps={[favourites, ready]}`) ; règles CSS `.scroll-fade-in` / `.scroll-fade-in.visible` ajoutées dans `globals.css`
+
 ### Changed
 
 - **artist-page — refonte `artist-service.ts`** : `fetchArtistTopTracks` (Last.fm) et `fetchArtistAlbums` (Spotify search) remplacés par `fetchArtistSpotifyData(name)` qui effectue les deux fetches Spotify en parallèle (`top-tracks?market=FR` + `albums?include_groups=album,single&limit=50`) après résolution de l'ID artiste via `artist:name` search ; les erreurs sont désormais loguées via `console.error` au lieu d'être avalées silencieusement

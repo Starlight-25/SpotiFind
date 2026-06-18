@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useFavourites } from "@/hooks/useFavourites";
 import EmptyState from "@/components/EmptyState";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import type { FavouriteItem } from "@/lib/music-types";
 
 interface LiveData {
@@ -84,28 +85,6 @@ export default function FavouritesPage() {
   const { favourites, remove, ready } = useFavourites();
   const [liveData, setLiveData] = useState<Record<string, LiveData>>({});
 
-  useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".scroll-fade-in");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          } else {
-            const exitedFromTop = entry.boundingClientRect.top < 0;
-            (entry.target as HTMLElement).style.setProperty(
-              "--slide-from",
-              exitedFromTop ? "-14px" : "14px"
-            );
-            entry.target.classList.remove("visible");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [favourites, ready]);
 
   useEffect(() => {
     if (!ready || favourites.length === 0) return;
@@ -171,6 +150,7 @@ export default function FavouritesPage() {
         </div>
       </header>
 
+      <ScrollAnimator deps={[favourites, ready]} />
       <main className="max-w-4xl mx-auto px-4 py-8 w-full">
         {!ready ? null : favourites.length === 0 ? (
           <EmptyState
