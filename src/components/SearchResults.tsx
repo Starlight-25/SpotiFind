@@ -51,7 +51,7 @@ function ArtistCard({ artist }: { artist: LastfmArtist }) {
   return (
     <Link
       href={`/artist/${encodeURIComponent(artist.name)}`}
-      className="group flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)]"
+      className="group flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)] [scroll-snap-align:start]"
     >
       {cover ? (
         <Image src={cover} alt={artist.name} width={112} height={112} className="rounded-full object-cover w-28 h-28 group-hover:brightness-75 transition-all" />

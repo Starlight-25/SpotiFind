@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
 import { useHomeCharts, type HomeArtist, type HomeAlbum } from "@/hooks/useHomeCharts";
+import ArtistScroller from "@/components/ArtistScroller";
 
 function ArtistCard({ artist }: { artist: HomeArtist }) {
   return (
@@ -56,9 +57,9 @@ export default function HomeCharts() {
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
           Trending Artists
         </h2>
-        <div className="flex gap-4 overflow-x-auto pb-2">
+        <ArtistScroller>
           {data.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
-        </div>
+        </ArtistScroller>
       </div>
 
       {/* Nouveaux albums */}
