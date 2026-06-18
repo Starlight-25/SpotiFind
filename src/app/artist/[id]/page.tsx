@@ -1,5 +1,7 @@
 import Image from "next/image";
-import { fetchArtistByName } from "@/lib/artist-service";
+import { fetchArtistByName, fetchArtistTopTracks, fetchArtistAlbums } from "@/lib/artist-service";
+import ArtistTopTracks from "@/components/ArtistTopTracks";
+import ArtistAlbums from "@/components/ArtistAlbums";
 
 interface PageProps {
   params: { id: string };
@@ -7,14 +9,19 @@ interface PageProps {
 
 export default async function ArtistPage({ params }: PageProps) {
   const name = decodeURIComponent(params.id);
-  const artist = await fetchArtistByName(name);
+
+  const [artist, topTracks, albums] = await Promise.all([
+    fetchArtistByName(name),
+    fetchArtistTopTracks(name),
+    fetchArtistAlbums(name),
+  ]);
 
   if (!artist) {
     return <p className="p-8 text-muted">Artiste introuvable.</p>;
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center gap-6">
+    <main className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center gap-8">
       {artist.thumb ? (
         <Image
           src={artist.thumb}
@@ -29,6 +36,8 @@ export default async function ArtistPage({ params }: PageProps) {
         </div>
       )}
       <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
+      <ArtistTopTracks tracks={topTracks} />
+      <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>
   );
 }
