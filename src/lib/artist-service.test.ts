@@ -55,6 +55,7 @@ describe("fetchArtistSpotifyData", () => {
       name: "Creep",
       imageUrl: "http://img1",
       albumName: "Pablo Honey",
+      listeners: null,
     });
 
     expect(result.albums).toHaveLength(2);

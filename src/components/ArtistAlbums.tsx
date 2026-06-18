@@ -20,7 +20,7 @@ export default function ArtistAlbums({ albums, artistName }: ArtistAlbumsProps) 
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4 pb-2 border-b border-border">
         Albums
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
         {albums.map((album, i) => (
           <Link
             key={album.name + i}

@@ -36,6 +36,11 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
                 {track.albumName}
               </span>
             )}
+            {track.listeners && (
+              <span className="text-xs text-muted flex-shrink-0 hidden md:block tabular-nums">
+                {Number(track.listeners).toLocaleString("fr-FR")} auditeurs
+              </span>
+            )}
           </div>
         );
 

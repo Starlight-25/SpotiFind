@@ -83,11 +83,12 @@ async function fetchLastfmTopTracks(name: string): Promise<ArtistTopTrack[]> {
 
     // Fetch track.getInfo in parallel to get real album art + album name
     const enriched = await Promise.all(
-      (tracks as { name: string }[]).slice(0, 10).map((t) =>
+      (tracks as { name: string; listeners: string }[]).slice(0, 10).map((t) =>
         fetchLastfmTrackInfo(name, t.name, apiKey).then((info) => ({
           name: t.name,
           imageUrl: info.imageUrl,
           albumName: info.albumName,
+          listeners: t.listeners ?? null,
         }))
       )
     );
@@ -211,6 +212,7 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
           name: t.name,
           imageUrl: t.album?.images?.[0]?.url ?? null,
           albumName: t.album?.name ?? null,
+          listeners: null,
         }));
       } else {
         console.error("[artist-service] Spotify top-tracks returned empty array");

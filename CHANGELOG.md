@@ -24,6 +24,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Changed
 
+- **artist-page — enrichissement colonne auditeurs** : ajout du champ `listeners: string | null` dans l'interface `ArtistTopTrack` (`music-types.ts`) ; `fetchLastfmTopTracks` mappe désormais `t.listeners` depuis la réponse `artist.getTopTracks` Last.fm (Spotify conserve `listeners: null`) ; composant `ArtistTopTracks` affiche une colonne "X auditeurs" (format `fr-FR` via `toLocaleString`) visible à partir de `md` ; page `/artist/[id]` élargie de `max-w-2xl` à `max-w-5xl` ; grille `ArtistAlbums` passée de `grid-cols-2 sm:grid-cols-3` à `grid-cols-3 sm:grid-cols-4 lg:grid-cols-5` ; test `artist-service.test.ts` mis à jour (`listeners: null` dans l'objet attendu)
+
 ### Fixed
 
 ### Removed

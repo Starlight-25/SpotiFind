@@ -20,7 +20,7 @@ export default async function ArtistPage({ params }: PageProps) {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center gap-8">
+    <main className="max-w-5xl mx-auto px-4 py-8 flex flex-col items-center gap-8">
       {artist.thumb ? (
         <Image
           src={artist.thumb}
