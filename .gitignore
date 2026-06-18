@@ -38,3 +38,7 @@ next-env.d.ts
 # Claude Code internal files
 .claude/.events.log
 .claude/.session-edited-files.json
+.claude/.adr-injected.json
+.claude/.quality-score.log
+.claude/.session-start-sha
+.claude/.session-start-time
