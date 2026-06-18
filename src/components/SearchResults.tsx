@@ -3,6 +3,7 @@ import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
 import EmptyState from "@/components/EmptyState";
 import HeartButton from "@/components/HeartButton";
+import ArtistScroller from "@/components/ArtistScroller";
 import { buildFavouriteId } from "@/lib/favourite-utils";
 import type { SearchResults, LastfmTrack, LastfmArtist, LastfmAlbum, LastfmImage } from "@/lib/music-types";
 
@@ -108,9 +109,9 @@ export default function SearchResults({ results }: { results: SearchResults }) {
         {results.artists.length === 0 ? (
           <EmptyState title="Aucun artiste trouvé" subtitle="Essaie un autre nom." />
         ) : (
-          <div className="flex gap-4 overflow-x-auto pb-2">
+          <ArtistScroller>
             {results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
-          </div>
+          </ArtistScroller>
         )}
       </div>
 
