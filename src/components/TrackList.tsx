@@ -1,5 +1,6 @@
 import type { LastfmTrackDetail } from "@/lib/music-types";
 import TrackRow from "@/components/TrackRow";
+import EmptyState from "@/components/EmptyState";
 
 interface TrackListProps {
   tracks: LastfmTrackDetail[];
@@ -7,7 +8,7 @@ interface TrackListProps {
 
 export default function TrackList({ tracks }: TrackListProps) {
   if (tracks.length === 0) {
-    return <p className="text-sm text-muted py-4">Aucune piste disponible.</p>;
+    return <EmptyState title="Aucune piste disponible" subtitle="Cet album ne contient pas de tracklist dans notre base." />;
   }
   return (
     <div>

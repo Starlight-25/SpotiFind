@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
+import EmptyState from "@/components/EmptyState";
 import type { SearchResults, LastfmTrack, LastfmArtist, LastfmAlbum, LastfmImage } from "@/lib/music-types";
 
 function getImage(images: LastfmImage[], size: "large" | "extralarge" = "large") {
@@ -94,7 +95,7 @@ export default function SearchResults({ results }: { results: SearchResults }) {
           Artistes
         </h2>
         {results.artists.length === 0 ? (
-          <p className="text-sm text-muted py-2">No results</p>
+          <EmptyState title="Aucun artiste trouvé" subtitle="Essaie un autre nom." />
         ) : (
           <div className="flex gap-4 overflow-x-auto pb-2">
             {results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
@@ -106,12 +107,12 @@ export default function SearchResults({ results }: { results: SearchResults }) {
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-8">
         <Column title="Tracks">
           {results.tracks.length === 0
-            ? <p className="text-sm text-muted py-2">No results</p>
+            ? <EmptyState title="Aucun titre trouvé" subtitle="Essaie un autre nom." />
             : results.tracks.map((t, i) => <TrackCard key={t.mbid || i} track={t} />)}
         </Column>
         <Column title="Albums">
           {results.albums.length === 0
-            ? <p className="text-sm text-muted py-2">No results</p>
+            ? <EmptyState title="Aucun album trouvé" subtitle="Essaie un autre nom." />
             : results.albums.map((a, i) => <AlbumCard key={a.mbid || i} album={a} />)}
         </Column>
       </div>
