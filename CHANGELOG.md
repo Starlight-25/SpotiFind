@@ -7,6 +7,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ## [Unreleased]
 
+### Changed
+
+- **search — augmentation des limites Last.fm** : `track.search` et `album.search` passent de 5 à 20 résultats par requête (`limit=20` dans `lastfmSearch`) ; `artist.search` conserve `limit=5`
+
 ### Added
 
 - **search — scroll snap + barre de progression sur `ArtistScroller`** : `scroll-snap-type: x mandatory` posé sur le conteneur du carousel artistes ; `scroll-snap-align: start` posé sur chaque `ArtistCard` via la classe Tailwind arbitraire `[scroll-snap-align:start]` dans `SearchResults` ; nouvel état `progress` (`useState<number>`, 0–1) mis à jour dans le handler `onScroll` via `scrollLeft / (scrollWidth - clientWidth)` ; barre de progression (`div bg-foreground`, largeur inline `progress * 100%`) rendue uniquement quand le contenu est en overflow réel (`fadeLeft || fadeRight`)

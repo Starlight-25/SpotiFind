@@ -5,6 +5,7 @@ import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
 import { useHomeCharts, type HomeArtist, type HomeAlbum } from "@/hooks/useHomeCharts";
 import ArtistScroller from "@/components/ArtistScroller";
+import ScrollAnimator from "@/components/ScrollAnimator";
 
 function ArtistCard({ artist }: { artist: HomeArtist }) {
   return (
@@ -52,6 +53,7 @@ export default function HomeCharts() {
 
   return (
     <div className="mt-8 flex-1 min-h-0 flex flex-col">
+      <ScrollAnimator deps={[data]} />
       {/* Top artistes */}
       <div className="flex-shrink-0 mb-8">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
@@ -68,7 +70,11 @@ export default function HomeCharts() {
           Trending Albums
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-          {data.albums.map((a, i) => <AlbumCard key={i} album={a} />)}
+          {data.albums.map((a, i) => (
+            <div key={i} className="scroll-fade-in">
+              <AlbumCard album={a} />
+            </div>
+          ))}
         </div>
       </div>
     </div>

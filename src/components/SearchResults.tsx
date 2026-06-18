@@ -1,9 +1,11 @@
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
 import EmptyState from "@/components/EmptyState";
 import HeartButton from "@/components/HeartButton";
 import ArtistScroller from "@/components/ArtistScroller";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import { buildFavouriteId } from "@/lib/favourite-utils";
 import type { SearchResults, LastfmTrack, LastfmArtist, LastfmAlbum, LastfmImage } from "@/lib/music-types";
 
@@ -91,7 +93,7 @@ function Column({ title, children }: { title: string; children: React.ReactNode 
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border flex-shrink-0">
         {title}
       </h2>
-      <div className="flex-1 overflow-y-auto divide-y divide-border px-2">
+      <div className="flex-1 divide-y divide-border px-2">
         {children}
       </div>
     </div>
@@ -101,6 +103,7 @@ function Column({ title, children }: { title: string; children: React.ReactNode 
 export default function SearchResults({ results }: { results: SearchResults }) {
   return (
     <div className="mt-8 flex-1 min-h-0 flex flex-col">
+      <ScrollAnimator deps={[results]} />
       {/* Artists — full width, 5 visible, horizontal scroll */}
       <div className="flex-shrink-0 mb-8">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
@@ -120,12 +123,20 @@ export default function SearchResults({ results }: { results: SearchResults }) {
         <Column title="Tracks">
           {results.tracks.length === 0
             ? <EmptyState title="Aucun titre trouvé" subtitle="Essaie un autre nom." />
-            : results.tracks.map((t, i) => <TrackCard key={t.mbid || i} track={t} />)}
+            : results.tracks.map((t, i) => (
+              <div key={t.mbid || i} className="scroll-fade-in">
+                <TrackCard track={t} />
+              </div>
+            ))}
         </Column>
         <Column title="Albums">
           {results.albums.length === 0
             ? <EmptyState title="Aucun album trouvé" subtitle="Essaie un autre nom." />
-            : results.albums.map((a, i) => <AlbumCard key={a.mbid || i} album={a} />)}
+            : results.albums.map((a, i) => (
+              <div key={a.mbid || i} className="scroll-fade-in">
+                <AlbumCard album={a} />
+              </div>
+            ))}
         </Column>
       </div>
     </div>

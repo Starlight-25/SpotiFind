@@ -3,7 +3,7 @@
 | Champ         | Valeur              |
 |---------------|---------------------|
 | Module        | search              |
-| Version       | 0.2.0               |
+| Version       | 0.2.1               |
 | Date          | 2026-06-18          |
 | Source        | Rétro-ingénierie    |
 
@@ -39,7 +39,7 @@ Non applicable. Ce module n'utilise aucune base de données. Les résultats de r
 
 | Méthode | Route | Description | Auth |
 |---------|-------|-------------|------|
-| `GET` | `/api/search?q={query}` | Retourne `{ tracks[], artists[], albums[] }` depuis Last.fm (max 5 par catégorie) | Aucune (clé côté serveur) |
+| `GET` | `/api/search?q={query}` | Retourne `{ tracks[], artists[], albums[] }` depuis Last.fm (max 20 par catégorie pour tracks et albums, max 5 pour artists) | Aucune (clé côté serveur) |
 
 **Paramètres :**
 - `q` (string, obligatoire) — terme de recherche libre. Retourne `400` avec `{ error: "Missing \`q\` query parameter." }` si absent.
@@ -82,7 +82,7 @@ Non applicable. Ce module n'utilise aucune base de données. Les résultats de r
 Les éléments ci-dessous ont été identifiés comme décisions techniques mais ont été **rejetés** comme candidats ADR (portée trop locale ou anti-pattern AP-3) :
 
 - **Debounce 400 ms** — valeur paramétrée via `debounceMs = 400` ; modifiable sans impact transverse. Documenté ici à titre informatif.
-- **Limite 5 résultats par catégorie** — hardcodée dans `lastfmSearch(... limit = 5)`. Non architecturale, modifiable en une ligne.
+- **Limites de résultats par catégorie** — `track.search` et `album.search` utilisent `limit=20` ; `artist.search` conserve `limit=5`. Non architecturale, modifiable en une ligne par catégorie.
 - **`Promise.all` pour les 3 appels Last.fm** — choix d'implémentation pour la performance, non une décision architecturale.
 - **Affichage `listeners` sur Track et Artist, absent sur Album** — incohérence visible dans le code : `LastfmAlbum` ne possède pas de champ `listeners` dans les types, contrairement à `LastfmTrack` et `LastfmArtist`. Potentielle dette ou limite de l'API Last.fm.
 

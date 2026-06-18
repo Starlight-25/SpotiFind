@@ -59,9 +59,9 @@ export async function GET(req: NextRequest) {
 
   try {
     const [tracksData, artistsData, albumsData] = await Promise.all([
-      lastfmSearch("track.search", "track", query),
+      lastfmSearch("track.search", "track", query, 20),
       lastfmSearch("artist.search", "artist", query),
-      lastfmSearch("album.search", "album", query),
+      lastfmSearch("album.search", "album", query, 20),
     ]);
 
     const rawTracks: Record<string, unknown>[] = tracksData.results?.trackmatches?.track ?? [];
