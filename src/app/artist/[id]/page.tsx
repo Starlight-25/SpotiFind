@@ -66,6 +66,9 @@ export default async function ArtistPage({ params }: PageProps) {
         )}
       </div>
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
+      {topTracks.length > 0 && albums.length > 0 && (
+        <hr className="w-full border-t-2 border-foreground" />
+      )}
       <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>
   );

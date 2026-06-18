@@ -17,9 +17,10 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
         Top Tracks
       </h2>
+      <div className="divide-y divide-border">
       {tracks.map((track, i) => {
         const row = (
-          <div className="flex items-center gap-3 py-3 px-2 border-b border-border last:border-0 group-hover:bg-border group-hover:rounded transition-colors">
+          <div className="flex items-center gap-3 py-3 px-2 group-hover:bg-border group-hover:rounded transition-colors">
             <span className="w-5 text-right text-sm text-muted flex-shrink-0 tabular-nums">{i + 1}</span>
             {track.imageUrl ? (
               <Image
@@ -71,6 +72,7 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
           <div key={track.name + i} className="hover:bg-border rounded transition-colors">{row}</div>
         );
       })}
+      </div>
     </section>
   );
 }
