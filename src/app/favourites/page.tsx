@@ -9,6 +9,7 @@ import type { FavouriteItem } from "@/lib/music-types";
 
 interface LiveData {
   listeners?: string;
+  playcount?: string;
   duration?: string;
   album?: string;
 }
@@ -53,13 +54,13 @@ function FavouriteRow({
           {item.artist && <p className="text-xs text-muted truncate">{item.artist}</p>}
         </div>
       </Link>
-      {live && (live.listeners || live.duration) && (
+      {live && (live.listeners || live.playcount || live.duration) && (
         <div className="flex items-center gap-2 flex-shrink-0 text-xs text-muted tabular-nums">
           {live.listeners && item.kind === "artist" && (
-            <span>{Number(live.listeners).toLocaleString("fr-FR")} auditeurs</span>
+            <span className="hidden sm:inline">{Number(live.listeners).toLocaleString("fr-FR")} monthly listeners</span>
           )}
-          {live.listeners && item.kind === "track" && (
-            <span className="hidden sm:inline">{Number(live.listeners).toLocaleString("fr-FR")} auditeurs</span>
+          {live.playcount && item.kind === "track" && (
+            <span className="hidden sm:inline">{Number(live.playcount).toLocaleString("fr-FR")} plays</span>
           )}
           {live.duration && Number(live.duration) > 0 && (
             <span>{formatDuration(live.duration)}</span>
@@ -102,6 +103,7 @@ export default function FavouritesPage() {
                 id: item.id,
                 live: {
                   listeners: data.listeners ?? undefined,
+                  playcount: data.playcount ?? undefined,
                   duration: data.duration ?? undefined,
                   album: data.album ?? undefined,
                 },
@@ -141,7 +143,7 @@ export default function FavouritesPage() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400" aria-hidden="true">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
-            <h1 className="text-xl font-semibold text-foreground">Mes favoris</h1>
+            <h1 className="text-xl font-semibold text-foreground">My Favourites</h1>
           </div>
         </div>
       </header>
@@ -157,7 +159,7 @@ export default function FavouritesPage() {
             {artists.length > 0 && (
               <section>
                 <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
-                  Artistes
+                  Artists
                 </h2>
                 {artists.map(item => (
                   <FavouriteRow key={item.id} item={item} live={liveData[item.id]} onRemove={() => remove(item.id)} />
@@ -167,7 +169,7 @@ export default function FavouritesPage() {
             {tracks.length > 0 && (
               <section>
                 <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
-                  Titres
+                  Tracks
                 </h2>
                 {tracks.map(item => (
                   <FavouriteRow key={item.id} item={item} live={liveData[item.id]} onRemove={() => remove(item.id)} />

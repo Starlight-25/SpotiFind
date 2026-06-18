@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     const t = data?.track;
     return NextResponse.json({
       listeners: (t?.listeners as string | undefined) ?? null,
+      playcount: (t?.playcount as string | undefined) ?? null,
       duration: (t?.duration as string | undefined) ?? null,
       album: (t?.album?.title as string | undefined) ?? null,
     });
