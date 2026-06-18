@@ -3,6 +3,8 @@ import { fetchArtistByName, fetchArtistSpotifyData } from "@/lib/artist-service"
 import ArtistTopTracks from "@/components/ArtistTopTracks";
 import ArtistAlbums from "@/components/ArtistAlbums";
 import ErrorBanner from "@/components/ErrorBanner";
+import HeartButton from "@/components/HeartButton";
+import { buildFavouriteId } from "@/lib/favourite-utils";
 
 interface PageProps {
   params: { id: string };
@@ -42,7 +44,16 @@ export default async function ArtistPage({ params }: PageProps) {
           {artist.name.charAt(0)}
         </div>
       )}
-      <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
+        <HeartButton
+          id={buildFavouriteId("artist", artist.name)}
+          kind="artist"
+          name={artist.name}
+          imageUrl={artist.thumb ?? undefined}
+          href={`/artist/${encodeURIComponent(artist.name)}`}
+        />
+      </div>
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
       <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>
