@@ -33,6 +33,61 @@
   }
 }
 
+@keyframes trackFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.track-enter {
+  animation: trackFadeIn 0.35s ease both;
+  animation-delay: var(--track-delay, 0ms);
+}
+
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(var(--slide-from, 14px));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.scroll-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(1.6); }
+  50%  { transform: scale(0.85); }
+  75%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes particleFly {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+.heart-pop {
+  animation: heartPop 0.45s ease forwards;
+}
+
+.heart-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleFly 0.55s ease-out forwards;
+  animation-delay: var(--p-delay, 0ms);
+  transform-origin: center;
+}
+
 @layer components {
   .container-app {
     width: 100%;

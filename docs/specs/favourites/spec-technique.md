@@ -3,7 +3,7 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.2.0               |
+| Version | 0.3.0               |
 | Date    | 2026-06-18          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
@@ -124,7 +124,7 @@ Quand `albumArtist` et `albumHref` sont fournis, chaque `TrackRow` reçoit un `f
 
 ### `ArtistTopTracks` (`src/components/ArtistTopTracks.tsx`)
 
-`HeartButton` ajouté à droite de la colonne auditeurs sur chaque ligne. Le `href` pointe vers la page album si `track.albumName` est défini, sinon vers la page artiste.
+`HeartButton` ajouté à droite de la colonne auditeurs sur chaque ligne. Le `href` pointe vers la page album si `track.albumName` est défini, sinon vers la page artiste. Classe `scroll-fade-in` appliquée sur chaque row (`<Link>` et `<div>` de fallback) pour l'animation au scroll via `ScrollAnimator`.
 
 ---
 
@@ -159,7 +159,49 @@ Aucun test unitaire écrit pour cette session (hook + composants UI). À prévoi
 
 ---
 
+---
+
+## Composant `ScrollAnimator` (`src/components/ScrollAnimator.tsx`)
+
+Client Component réutilisable. Monte un `IntersectionObserver` sur tous les éléments portant la classe `.scroll-fade-in` présents dans le DOM au moment du montage, puis lors de chaque changement de `deps`.
+
+**Props :**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `deps` | `unknown[]` (optionnel) | Tableau de dépendances — si fourni, l'observateur est remonté à chaque changement (pattern identique à `useEffect`) |
+
+**Comportement :**
+- Direction awareness : l'observateur compare la position verticale du scroll entre deux frames pour détecter si l'utilisateur scrolle vers le bas ou vers le haut. La CSS custom property `--slide-from` est posée sur chaque élément (valeur `"top"` ou `"bottom"`) avant d'ajouter la classe `visible`.
+- `requestAnimationFrame` utilisé pour le timing : la classe `visible` est ajoutée dans la frame suivante après l'entrée dans le viewport, évitant les transitions avortées.
+- Cleanup : l'observateur est déconnecté (`observer.disconnect()`) au démontage du composant (retour de `useEffect`).
+- Produit aucun DOM rendu (`return null`) — effet de bord uniquement.
+
+**CSS associé (`src/app/globals.css`) :**
+
+```css
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(calc(var(--slide-from, bottom) == "top" ? -1rem : 1rem));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.scroll-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+```
+
+**Intégration dans `/favourites` (`src/app/favourites/page.tsx`) :**
+
+L'`IntersectionObserver` inline précédemment écrit directement dans `useEffect` de la page a été remplacé par `<ScrollAnimator deps={[favourites, ready]} />`. Les dépendances passées garantissent que l'observateur est remonté après hydratation (`ready === true`) et après chaque mise à jour de la liste des favoris.
+
+**Intégration dans `/artist/[id]` (`src/app/artist/[id]/page.tsx`) :**
+
+`<ScrollAnimator />` ajouté dans le layout serveur (sans `deps`) — l'observateur est monté une seule fois au chargement de la page. Les éléments `.scroll-fade-in` dans `ArtistTopTracks` et `ArtistAlbums` sont animés automatiquement.
+
+---
+
 ## Points non implémentés (périmètre session)
 
-- Page `/favourites` — affichage de la liste des favoris (squelette vide, à implémenter)
 - Support type `"album"` et `"artist"` dans `HeartButton` (seul `"track"` est intégré pour l'instant)
+- La classe `scroll-fade-in` n'est pas encore appliquée aux cards de la page `/favourites` elle-même (les items de la liste ne sont pas encore animés au scroll depuis cette page)

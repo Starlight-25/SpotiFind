@@ -3,8 +3,8 @@
 | Champ   | Valeur           |
 |---------|------------------|
 | Module  | album-page       |
-| Version | 0.2.0            |
-| Date    | 2026-06-17       |
+| Version | 0.3.0            |
+| Date    | 2026-06-18       |
 | Auteur  | update-writer    |
 
 ---
@@ -117,13 +117,15 @@ Ligne individuelle de piste dans la tracklist.
 
 **Helper interne :** `formatDuration(seconds: string): string | null` — convertit les secondes en `M:SS` ; retourne `null` si la valeur n'est pas un nombre valide (ex : `"0"` → `null`).
 
-**Rendu :** flex row — rang (6 chars, `tabular-nums`), titre (flex-1, `truncate`), durée (si non nulle, `tabular-nums`). Séparateur `border-b border-border`, supprimé sur le dernier enfant (`last:border-0`).
+**Rendu :** flex row — rang (6 chars, `tabular-nums`), titre (flex-1, `truncate`), durée (si non nulle, `tabular-nums`). La séparation entre lignes est gérée par `divide-y divide-border` sur le conteneur `TrackList` (plus de `border-b border-border last:border-0` sur `TrackRow`).
 
 ---
 
 ### `src/components/TrackList.tsx`
 
 Conteneur de la tracklist. Reçoit `tracks: LastfmTrackDetail[]`. Si vide → message `"Aucune piste disponible."`. Sinon : titre de section `"Tracklist"` + liste de `<TrackRow>`. Utilise `track["@attr"]?.rank` en priorité ; fallback sur l'index `i + 1`.
+
+**Animation d'entrée (v0.3.0) :** chaque `<TrackRow>` est enveloppé dans un `<div className="track-enter">` portant la CSS custom property `--track-delay: ${Math.min(i * 40, 600)}ms`. Cela produit une apparition échelonnée de 40 ms par piste (plafonnée à 600 ms). Le conteneur utilise désormais `divide-y divide-border` pour les séparateurs (remplace `border-b border-border last:border-0` sur `TrackRow`). `import React` ajouté explicitement.
 
 ---
 
@@ -164,6 +166,26 @@ Fichier : `src/lib/album-utils.test.ts`
 | throws on slug without separator | `decodeAlbumSlug("nodivider")` lève `"Invalid album slug"` |
 
 Commande : `npm run test`
+
+---
+
+## Animations CSS
+
+### `src/app/globals.css` — animation `trackFadeIn`
+
+```css
+@keyframes trackFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.track-enter {
+  animation: trackFadeIn 0.35s ease both;
+  animation-delay: var(--track-delay, 0ms);
+}
+```
+
+La custom property `--track-delay` est posée inline par `TrackList` (`style={{ "--track-delay": \`${Math.min(i * 40, 600)}ms\` }}`), ce qui permet un délai différent par piste sans JavaScript supplémentaire.
 
 ---
 

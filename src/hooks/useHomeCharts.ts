@@ -18,6 +18,7 @@ export interface HomeAlbum {
 interface HomeCharts {
   artists: HomeArtist[];
   albums: HomeAlbum[];
+  albumsRock: HomeAlbum[];
 }
 
 export function useHomeCharts() {

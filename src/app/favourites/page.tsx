@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useFavourites } from "@/hooks/useFavourites";
 import EmptyState from "@/components/EmptyState";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import type { FavouriteItem } from "@/lib/music-types";
 
 interface LiveData {
@@ -29,8 +30,8 @@ function FavouriteRow({
   onRemove: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
-      <Link href={item.href} className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+    <div className="scroll-fade-in flex items-center gap-3 py-3 px-2 border-b border-border last:border-0 hover:bg-border hover:rounded transition-colors">
+      <Link href={item.href} className="flex items-center gap-3 flex-1 min-w-0">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
@@ -83,6 +84,7 @@ function FavouriteRow({
 export default function FavouritesPage() {
   const { favourites, remove, ready } = useFavourites();
   const [liveData, setLiveData] = useState<Record<string, LiveData>>({});
+
 
   useEffect(() => {
     if (!ready || favourites.length === 0) return;
@@ -148,6 +150,7 @@ export default function FavouritesPage() {
         </div>
       </header>
 
+      <ScrollAnimator deps={[favourites, ready]} />
       <main className="max-w-4xl mx-auto px-4 py-8 w-full">
         {!ready ? null : favourites.length === 0 ? (
           <EmptyState
@@ -165,6 +168,9 @@ export default function FavouritesPage() {
                   <FavouriteRow key={item.id} item={item} live={liveData[item.id]} onRemove={() => remove(item.id)} />
                 ))}
               </section>
+            )}
+            {artists.length > 0 && tracks.length > 0 && (
+              <hr className="border-t-2 border-foreground" />
             )}
             {tracks.length > 0 && (
               <section>

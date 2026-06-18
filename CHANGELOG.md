@@ -9,9 +9,23 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **home — albums rock en parallèle** : deuxième appel `tag.getTopAlbums` (tag=rock, limit=10) lancé en parallèle du fetch pop existant dans `src/app/api/home/route.ts` ; nouvelle fonction utilitaire `parseAlbums` mutualisée ; réponse JSON enrichie avec le champ `albumsRock: HomeAlbum[]` ; type `HomeCharts` mis à jour dans `src/hooks/useHomeCharts.ts` ; nouvelle section "Trending Albums — Rock" rendue dans `HomeCharts.tsx` avec animation `scroll-fade-in` sur chaque carte
+
+### Changed
+
+- **search — augmentation des limites Last.fm** : `track.search` et `album.search` passent de 5 à 20 résultats par requête (`limit=20` dans `lastfmSearch`) ; `artist.search` conserve `limit=5`
+
+### Added
+
+- **search — scroll snap + barre de progression sur `ArtistScroller`** : `scroll-snap-type: x mandatory` posé sur le conteneur du carousel artistes ; `scroll-snap-align: start` posé sur chaque `ArtistCard` via la classe Tailwind arbitraire `[scroll-snap-align:start]` dans `SearchResults` ; nouvel état `progress` (`useState<number>`, 0–1) mis à jour dans le handler `onScroll` via `scrollLeft / (scrollWidth - clientWidth)` ; barre de progression (`div bg-foreground`, largeur inline `progress * 100%`) rendue uniquement quand le contenu est en overflow réel (`fadeLeft || fadeRight`)
+
+- **album-page — animation d'entrée tracklist** : keyframes `trackFadeIn` (opacity 0→1 + translateY 10px→0, 0.35 s ease) et classe `.track-enter` dans `globals.css` ; chaque `TrackRow` est rendu dans un wrapper `<div class="track-enter">` portant `--track-delay` (40 ms/piste, plafond 600 ms) posé inline dans `TrackList` ; séparateurs entre lignes migrés de `border-b border-border last:border-0` sur `TrackRow` vers `divide-y divide-border` sur le conteneur `TrackList`
+
 - **favourites — couche logique (localStorage)** : type `FavouriteItem` + `FavouriteKind` dans `music-types.ts` ; utilitaire `buildFavouriteId(kind, name, artist?)` dans `favourite-utils.ts` (format ID stable `"<kind>:<artist>:<name>"`) ; hook `useFavourites()` dans `hooks/useFavourites.ts` (clé localStorage `spotifind_favourites`, API : `favourites`, `isFavourite`, `toggle`, `remove`, `ready`) ; `HeartButton` Client Component (bouton cœur SVG 15×15 toggleable, évite flash hydratation via flag `ready`) ; intégration `HeartButton` dans `ArtistTopTracks` (à droite de la colonne auditeurs) ; props `albumArtist`, `albumImageUrl`, `albumHref` ajoutées à `TrackList` pour passer le contexte album à chaque `TrackRow`
 
 - **artist-page — top tracks + albums** : `fetchArtistTopTracks()` (Last.fm `artist.getTopTracks`, limit=10) et `fetchArtistAlbums()` (Spotify search artist → albums triés par `release_date` desc) dans `artist-service.ts` ; composant `ArtistTopTracks` (liste numérotée avec playcount formaté) ; composant `ArtistAlbums` (grille cliquable via `<Link>` vers `/album/[encodeAlbumSlug]`, cover Spotify + année) ; page `/artist/[id]` mise à jour avec fetch parallèle (`Promise.all`) des trois sources et rendu des deux nouvelles sections
+
+- **scroll animation — composant `ScrollAnimator`** : nouveau Client Component réutilisable (`src/components/ScrollAnimator.tsx`) — monte un `IntersectionObserver` sur tous les éléments `.scroll-fade-in` avec direction awareness (CSS custom property `--slide-from` posée dynamiquement) et timing via `requestAnimationFrame` ; classe `scroll-fade-in` ajoutée sur chaque row de `ArtistTopTracks` et sur chaque card de `ArtistAlbums` ; `<ScrollAnimator />` injecté dans la page `/artist/[id]` (Server Component) et dans `/favourites` (remplace l'`IntersectionObserver` inline, `deps={[favourites, ready]}`) ; règles CSS `.scroll-fade-in` / `.scroll-fade-in.visible` ajoutées dans `globals.css`
 
 ### Changed
 

@@ -5,6 +5,7 @@ import ArtistAlbums from "@/components/ArtistAlbums";
 import ErrorBanner from "@/components/ErrorBanner";
 import HeartButton from "@/components/HeartButton";
 import BackButton from "@/components/BackButton";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import { buildFavouriteId } from "@/lib/favourite-utils";
 
 interface PageProps {
@@ -65,7 +66,11 @@ export default async function ArtistPage({ params }: PageProps) {
           </p>
         )}
       </div>
+      <ScrollAnimator />
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
+      {topTracks.length > 0 && albums.length > 0 && (
+        <hr className="w-full border-t-2 border-foreground" />
+      )}
       <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>
   );

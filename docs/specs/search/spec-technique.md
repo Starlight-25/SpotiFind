@@ -3,8 +3,8 @@
 | Champ         | Valeur              |
 |---------------|---------------------|
 | Module        | search              |
-| Version       | 0.1.0               |
-| Date          | 2026-06-17          |
+| Version       | 0.2.1               |
+| Date          | 2026-06-18          |
 | Source        | Rétro-ingénierie    |
 
 ## Architecture du module
@@ -26,7 +26,8 @@ Les trois couches communiquent uniquement via les types de `src/lib/music-types.
 | `src/app/page.tsx` | Homepage — orchestration état query + rendu conditionnel | ~41 |
 | `src/components/SearchBar.tsx` | Input contrôlé avec trim + callback `onSearch` | ~47 |
 | `src/hooks/useSearch.ts` | Hook debounce + AbortController + fetch `/api/search` | ~58 |
-| `src/components/SearchResults.tsx` | Grille 3 colonnes + cards Tracks / Artists / Albums | ~102 |
+| `src/components/SearchResults.tsx` | Grille 3 colonnes + cards Tracks / Artists / Albums ; pose `[scroll-snap-align:start]` sur le `Link` de `ArtistCard` | ~102 |
+| `src/components/ArtistScroller.tsx` | Carousel horizontal artistes : scroll snap (`scroll-snap-type: x mandatory`), barre de progression dynamique (`progress` via `useState`, width = `scrollLeft / (scrollWidth - clientWidth)`), visible uniquement si overflow (fadeLeft ou fadeRight) | ~80 |
 | `src/lib/music-types.ts` | Interfaces TypeScript Last.fm (`LastfmTrack`, `LastfmArtist`, `LastfmAlbum`, `LastfmImage`, `SearchResults`) | ~35 |
 | `src/app/api/search/route.ts` | Route Handler — proxy vers Last.fm, `Promise.all` sur 3 méthodes | ~38 |
 
@@ -38,7 +39,7 @@ Non applicable. Ce module n'utilise aucune base de données. Les résultats de r
 
 | Méthode | Route | Description | Auth |
 |---------|-------|-------------|------|
-| `GET` | `/api/search?q={query}` | Retourne `{ tracks[], artists[], albums[] }` depuis Last.fm (max 5 par catégorie) | Aucune (clé côté serveur) |
+| `GET` | `/api/search?q={query}` | Retourne `{ tracks[], artists[], albums[] }` depuis Last.fm (max 20 par catégorie pour tracks et albums, max 5 pour artists) | Aucune (clé côté serveur) |
 
 **Paramètres :**
 - `q` (string, obligatoire) — terme de recherche libre. Retourne `400` avec `{ error: "Missing \`q\` query parameter." }` si absent.
@@ -73,13 +74,15 @@ Non applicable. Ce module n'utilise aucune base de données. Les résultats de r
 - **Normalisation défensive des données** — `data.tracks ?? []` et l'équivalent pour `artists`/`albums` protègent contre les réponses partielles de Last.fm.
 - **Image fallback en cascade** — `getImage` cherche d'abord le size `large`, puis le premier `#text` non vide, puis retourne une chaîne vide déclenchant le placeholder visuel.
 - **Clé React via `mbid || index`** — le `mbid` Last.fm est utilisé comme clé stable ; l'index est le fallback lorsque `mbid` est absent (cas réel : certains résultats Last.fm n'ont pas de MusicBrainz ID).
+- **Scroll snap CSS natif sur carousel** — `ArtistScroller` applique `scroll-snap-type: x mandatory` sur le conteneur de défilement et `scroll-snap-align: start` (via classe Tailwind arbitraire `[scroll-snap-align:start]`) sur chaque `ArtistCard`. Le snap CSS natif évite tout calcul JS de position ou librairie externe.
+- **Barre de progression dérivée du scroll** — un `useState<number>` (`progress`, 0 à 1) est mis à jour dans le handler `onScroll` via `scrollLeft / (scrollWidth - clientWidth)`. La largeur de la barre est posée en style inline (`width: \`${progress * 100}%\``). La barre est rendue conditionnellement : elle n'est visible (`fadeLeft || fadeRight`) que si le contenu est en overflow réel, évitant un artefact visuel quand tous les artistes tiennent à l'écran.
 
 ## Décisions techniques locales (non-ADR)
 
 Les éléments ci-dessous ont été identifiés comme décisions techniques mais ont été **rejetés** comme candidats ADR (portée trop locale ou anti-pattern AP-3) :
 
 - **Debounce 400 ms** — valeur paramétrée via `debounceMs = 400` ; modifiable sans impact transverse. Documenté ici à titre informatif.
-- **Limite 5 résultats par catégorie** — hardcodée dans `lastfmSearch(... limit = 5)`. Non architecturale, modifiable en une ligne.
+- **Limites de résultats par catégorie** — `track.search` et `album.search` utilisent `limit=20` ; `artist.search` conserve `limit=5`. Non architecturale, modifiable en une ligne par catégorie.
 - **`Promise.all` pour les 3 appels Last.fm** — choix d'implémentation pour la performance, non une décision architecturale.
 - **Affichage `listeners` sur Track et Artist, absent sur Album** — incohérence visible dans le code : `LastfmAlbum` ne possède pas de champ `listeners` dans les types, contrairement à `LastfmTrack` et `LastfmArtist`. Potentielle dette ou limite de l'API Last.fm.
 

@@ -25,7 +25,7 @@ export default function ArtistAlbums({ albums, artistName }: ArtistAlbumsProps) 
           <Link
             key={album.name + i}
             href={`/album/${encodeAlbumSlug(artistName, album.name)}`}
-            className="group flex flex-col gap-2"
+            className="scroll-fade-in group flex flex-col gap-2 rounded-xl hover:bg-border transition-colors p-1 -m-1"
           >
             {album.imageUrl ? (
               <Image
@@ -33,7 +33,7 @@ export default function ArtistAlbums({ albums, artistName }: ArtistAlbumsProps) 
                 alt={album.name}
                 width={180}
                 height={180}
-                className="w-full aspect-square object-cover rounded shadow-sm group-hover:opacity-80 transition-opacity"
+                className="w-full aspect-square object-cover rounded-xl shadow-sm"
               />
             ) : (
               <div className="w-full aspect-square rounded bg-border flex items-center justify-center text-muted text-3xl font-bold uppercase">
