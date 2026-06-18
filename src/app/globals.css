@@ -33,6 +33,17 @@
   }
 }
 
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(var(--slide-from, 14px));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.scroll-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @layer components {
   .container-app {
     width: 100%;

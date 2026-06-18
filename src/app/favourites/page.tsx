@@ -29,7 +29,7 @@ function FavouriteRow({
   onRemove: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3 py-3 px-2 border-b border-border last:border-0 hover:bg-border hover:rounded transition-colors">
+    <div className="scroll-fade-in flex items-center gap-3 py-3 px-2 border-b border-border last:border-0 hover:bg-border hover:rounded transition-colors">
       <Link href={item.href} className="flex items-center gap-3 flex-1 min-w-0">
         {item.imageUrl ? (
           <Image
@@ -83,6 +83,29 @@ function FavouriteRow({
 export default function FavouritesPage() {
   const { favourites, remove, ready } = useFavourites();
   const [liveData, setLiveData] = useState<Record<string, LiveData>>({});
+
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".scroll-fade-in");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          } else {
+            const exitedFromTop = entry.boundingClientRect.top < 0;
+            (entry.target as HTMLElement).style.setProperty(
+              "--slide-from",
+              exitedFromTop ? "-14px" : "14px"
+            );
+            entry.target.classList.remove("visible");
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [favourites, ready]);
 
   useEffect(() => {
     if (!ready || favourites.length === 0) return;
