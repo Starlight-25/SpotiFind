@@ -27,10 +27,13 @@ async function enrichTrackImage(track: Record<string, unknown>): Promise<Record<
     if (!res.ok) return track;
     const data = await res.json();
     const albumImages = data.track?.album?.image;
+    const duration = data.track?.duration as string | undefined;
+    const enriched = { ...track };
     if (Array.isArray(albumImages) && albumImages.some((i: { "#text": string }) => i["#text"])) {
-      return { ...track, image: albumImages };
+      enriched.image = albumImages;
     }
-    return track;
+    if (duration) enriched.duration = duration;
+    return enriched;
   } catch {
     return track;
   }

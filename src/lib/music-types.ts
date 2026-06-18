@@ -10,6 +10,7 @@ export interface LastfmTrack {
   listeners: string;
   image: LastfmImage[];
   mbid: string;
+  duration?: string;
 }
 
 export interface LastfmArtist {
