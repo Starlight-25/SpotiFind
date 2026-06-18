@@ -3,6 +3,7 @@ import { decodeAlbumSlug } from "@/lib/album-utils";
 import AlbumHero from "@/components/AlbumHero";
 import TrackList from "@/components/TrackList";
 import EmptyState from "@/components/EmptyState";
+import BackButton from "@/components/BackButton";
 
 interface PageProps {
   params: { id: string };

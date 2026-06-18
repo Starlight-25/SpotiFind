@@ -39,6 +39,7 @@ export interface LastfmTrackDetail {
   name: string;
   duration: string;
   listeners?: string;
+  playcount?: string;
   "@attr"?: { rank: string };
 }
 

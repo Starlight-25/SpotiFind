@@ -54,7 +54,7 @@ export default function HomeCharts() {
       {/* Top artistes */}
       <div className="flex-shrink-0 mb-8">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
-          Artistes du moment
+          Trending Artists
         </h2>
         <div className="flex gap-4 overflow-x-auto pb-2">
           {data.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
@@ -64,7 +64,7 @@ export default function HomeCharts() {
       {/* Nouveaux albums */}
       <div className="flex-shrink-0">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
-          Albums du moment
+          Trending Albums
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
           {data.albums.map((a, i) => <AlbumCard key={i} album={a} />)}

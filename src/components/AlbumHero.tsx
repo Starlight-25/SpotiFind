@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { LastfmImage } from "@/lib/music-types";
+import BackButton from "@/components/BackButton";
 
 function getBestImage(images: LastfmImage[]): string {
   return (
@@ -23,17 +24,22 @@ export default function AlbumHero({ name, artist, images, playcount, listeners }
   const cover = getBestImage(images);
   return (
     <div className="flex items-end gap-6 mb-8">
-      {cover ? (
-        <Image
-          src={cover}
-          alt={name}
-          width={200}
-          height={200}
-          className="rounded shadow-md flex-shrink-0 object-cover"
-        />
-      ) : (
-        <div className="w-[200px] h-[200px] rounded bg-border flex-shrink-0" />
-      )}
+      <div className="relative flex-shrink-0">
+        <div className="absolute top-0 -left-8">
+          <BackButton />
+        </div>
+        {cover ? (
+          <Image
+            src={cover}
+            alt={name}
+            width={200}
+            height={200}
+            className="rounded shadow-md object-cover"
+          />
+        ) : (
+          <div className="w-[200px] h-[200px] rounded bg-border" />
+        )}
+      </div>
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Album</p>
         <h1 className="text-3xl font-bold text-foreground truncate">{name}</h1>
@@ -44,11 +50,8 @@ export default function AlbumHero({ name, artist, images, playcount, listeners }
           {artist}
         </Link>
         <div className="flex gap-4 mt-2">
-          {listeners && (
-            <p className="text-xs text-muted">{Number(listeners).toLocaleString("fr-FR")} auditeurs</p>
-          )}
           {playcount && (
-            <p className="text-xs text-muted">{Number(playcount).toLocaleString("fr-FR")} écoutes</p>
+            <p className="text-xs text-muted">{Number(playcount).toLocaleString("fr-FR")} plays</p>
           )}
         </div>
       </div>
