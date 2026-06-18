@@ -9,7 +9,8 @@ interface ArtistAlbumsProps {
 }
 
 function releaseYear(date: string): string {
-  return date.slice(0, 4);
+  const year = date.slice(0, 4);
+  return year.length === 4 ? year : "";
 }
 
 export default function ArtistAlbums({ albums, artistName }: ArtistAlbumsProps) {

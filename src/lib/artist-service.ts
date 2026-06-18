@@ -24,6 +24,46 @@ export async function fetchArtistByName(name: string): Promise<ArtistDetail | nu
   }
 }
 
+type LastfmImage = { "#text": string; size: string };
+
+function pickLastfmImage(images: LastfmImage[] | undefined): string | null {
+  if (!Array.isArray(images)) return null;
+  const url =
+    images.find((i) => i.size === "extralarge")?.["#text"] ||
+    images.find((i) => i.size === "large")?.["#text"] ||
+    images.find((i) => i["#text"])?.["#text"] ||
+    "";
+  // Filter out Last.fm's known "no image" placeholder hashes
+  if (!url || url.includes("2a96cbd8b46e442fc41c2b86b821562f")) return null;
+  return url;
+}
+
+async function fetchLastfmTrackInfo(
+  artist: string,
+  track: string,
+  apiKey: string
+): Promise<{ imageUrl: string | null; albumName: string | null }> {
+  try {
+    const qs = new URLSearchParams({
+      method: "track.getInfo",
+      artist,
+      track,
+      api_key: apiKey,
+      format: "json",
+    });
+    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
+    if (!res.ok) return { imageUrl: null, albumName: null };
+    const data = await res.json();
+    const album = data?.track?.album;
+    return {
+      imageUrl: pickLastfmImage(album?.image),
+      albumName: (album?.title as string | undefined) ?? null,
+    };
+  } catch {
+    return { imageUrl: null, albumName: null };
+  }
+}
+
 async function fetchLastfmTopTracks(name: string): Promise<ArtistTopTrack[]> {
   try {
     const apiKey = process.env.LASTFM_API_KEY;
@@ -40,13 +80,43 @@ async function fetchLastfmTopTracks(name: string): Promise<ArtistTopTrack[]> {
     const data = await res.json();
     const tracks = data?.toptracks?.track;
     if (!Array.isArray(tracks)) return [];
-    return tracks.map((t: { name: string; image: { "#text": string; size: string }[] }) => ({
-      name: t.name,
-      imageUrl:
-        t.image?.find((i) => i.size === "large")?.["#text"] ||
-        t.image?.find((i) => i["#text"])?.["#text"] ||
-        null,
-      albumName: null,
+
+    // Fetch track.getInfo in parallel to get real album art + album name
+    const enriched = await Promise.all(
+      (tracks as { name: string }[]).slice(0, 10).map((t) =>
+        fetchLastfmTrackInfo(name, t.name, apiKey).then((info) => ({
+          name: t.name,
+          imageUrl: info.imageUrl,
+          albumName: info.albumName,
+        }))
+      )
+    );
+    return enriched;
+  } catch {
+    return [];
+  }
+}
+
+async function fetchLastfmTopAlbums(name: string): Promise<ArtistAlbum[]> {
+  try {
+    const apiKey = process.env.LASTFM_API_KEY;
+    if (!apiKey) return [];
+    const qs = new URLSearchParams({
+      method: "artist.getTopAlbums",
+      artist: name,
+      limit: "20",
+      api_key: apiKey,
+      format: "json",
+    });
+    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const albums = data?.topalbums?.album;
+    if (!Array.isArray(albums)) return [];
+    return (albums as { name: string; image: LastfmImage[] }[]).map((a) => ({
+      name: a.name,
+      release_date: "",
+      imageUrl: pickLastfmImage(a.image),
     }));
   } catch {
     return [];
@@ -95,9 +165,14 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
           imageUrl: t.album?.images?.[0]?.url ?? null,
           albumName: t.album?.name ?? null,
         }));
+      } else {
+        console.error("[artist-service] Spotify top-tracks returned empty array");
       }
+    } else {
+      console.error("[artist-service] Spotify top-tracks failed:", topTracksRes.status);
     }
     if (topTracks.length === 0) {
+      console.error("[artist-service] Falling back to Last.fm top tracks for:", name);
       topTracks = await fetchLastfmTopTracks(name);
     }
 
@@ -121,6 +196,9 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
       }
     } else {
       console.error("[artist-service] Spotify albums failed:", albumsRes.status);
+    }
+    if (albums.length === 0) {
+      albums = await fetchLastfmTopAlbums(name);
     }
 
     return { topTracks, albums };
