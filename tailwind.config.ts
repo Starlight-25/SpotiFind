@@ -11,6 +11,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        muted: "var(--muted)",
+        border: "var(--border)",
+        surface: "var(--surface)",
+        spotify: "#1DB954",
       },
     },
   },

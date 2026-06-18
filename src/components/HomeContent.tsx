@@ -1,0 +1,92 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import SearchBar from "@/components/SearchBar";
+import SearchResults from "@/components/SearchResults";
+import HomeCharts from "@/components/HomeCharts";
+import { useSearch } from "@/hooks/useSearch";
+import { useFavourites } from "@/hooks/useFavourites";
+
+const SESSION_KEY = "spotifind_query";
+
+export default function HomeContent() {
+  const [query, setQuery] = useState("");
+  const { results, loading, error } = useSearch(query.trim());
+  const { favourites, ready } = useFavourites();
+  const count = ready ? favourites.length : 0;
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SESSION_KEY) ?? "";
+    if (saved) setQuery(saved);
+  }, []);
+
+  function handleSearch(value: string) {
+    const trimmed = value.trim();
+    setQuery(value);
+    if (trimmed) sessionStorage.setItem(SESSION_KEY, trimmed);
+    else sessionStorage.removeItem(SESSION_KEY);
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="py-8 border-b-2 border-foreground flex-shrink-0">
+        <div className="grid grid-cols-3 items-center">
+          <div />
+          <div className="flex items-center justify-center gap-3">
+            <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
+            <h1 className="text-4xl font-semibold tracking-tight text-spotify">
+              SpotiFind
+            </h1>
+          </div>
+          <div className="flex justify-end pr-4">
+            <Link
+              href="/favourites"
+              aria-label={`Mes favoris${count > 0 ? ` (${count})` : ""}`}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors"
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill={count > 0 ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-red-400"
+                aria-hidden="true"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              {count > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-400 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 leading-none">
+                  {count}
+                </span>
+              )}
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="pt-10 pb-6 flex flex-col">
+        <SearchBar value={query} onSearch={handleSearch} />
+
+        {!query && <HomeCharts />}
+
+        {query && loading && (
+          <p className="text-sm text-muted text-center mt-8">Recherche…</p>
+        )}
+
+        {query && error && (
+          <p className="text-sm text-red-500 text-center mt-8">{error}</p>
+        )}
+
+        {query && results && !loading && (
+          <SearchResults results={results} />
+        )}
+      </main>
+    </div>
+  );
+}
