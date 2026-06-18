@@ -2,11 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useFavourites } from "@/hooks/useFavourites";
 import EmptyState from "@/components/EmptyState";
 import type { FavouriteItem } from "@/lib/music-types";
 
-function FavouriteRow({ item, onRemove }: { item: FavouriteItem; onRemove: () => void }) {
+interface LiveData {
+  listeners?: string;
+  duration?: string;
+  album?: string;
+}
+
+function formatDuration(ms: string): string {
+  const seconds = Math.floor(Number(ms) / 1000);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+function FavouriteRow({
+  item,
+  live,
+  onRemove,
+}: {
+  item: FavouriteItem;
+  live?: LiveData;
+  onRemove: () => void;
+}) {
   return (
     <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
       <Link href={item.href} className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
@@ -24,11 +44,28 @@ function FavouriteRow({ item, onRemove }: { item: FavouriteItem; onRemove: () =>
           </div>
         )}
         <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+          <div className="flex items-baseline gap-2 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+            {item.kind === "track" && live?.album && (
+              <p className="text-xs text-muted truncate flex-shrink-0 max-w-[140px] hidden sm:block">{live.album}</p>
+            )}
+          </div>
           {item.artist && <p className="text-xs text-muted truncate">{item.artist}</p>}
-          <p className="text-xs text-muted capitalize">{item.kind === "track" ? "Titre" : item.kind === "album" ? "Album" : "Artiste"}</p>
         </div>
       </Link>
+      {live && (live.listeners || live.duration) && (
+        <div className="flex items-center gap-2 flex-shrink-0 text-xs text-muted tabular-nums">
+          {live.listeners && item.kind === "artist" && (
+            <span>{Number(live.listeners).toLocaleString("fr-FR")} auditeurs</span>
+          )}
+          {live.listeners && item.kind === "track" && (
+            <span className="hidden sm:inline">{Number(live.listeners).toLocaleString("fr-FR")} auditeurs</span>
+          )}
+          {live.duration && Number(live.duration) > 0 && (
+            <span>{formatDuration(live.duration)}</span>
+          )}
+        </div>
+      )}
       <button
         onClick={onRemove}
         aria-label="Retirer des favoris"
@@ -44,6 +81,48 @@ function FavouriteRow({ item, onRemove }: { item: FavouriteItem; onRemove: () =>
 
 export default function FavouritesPage() {
   const { favourites, remove, ready } = useFavourites();
+  const [liveData, setLiveData] = useState<Record<string, LiveData>>({});
+
+  useEffect(() => {
+    if (!ready || favourites.length === 0) return;
+
+    const fetchAll = async () => {
+      const results = await Promise.all(
+        favourites.map(async (item) => {
+          try {
+            if (item.kind === "artist") {
+              const res = await fetch(`/api/artist-info?name=${encodeURIComponent(item.name)}`);
+              const data = await res.json();
+              return { id: item.id, live: { listeners: data.listeners ?? undefined } };
+            } else if (item.kind === "track" && item.artist) {
+              const qs = new URLSearchParams({ artist: item.artist, track: item.name });
+              const res = await fetch(`/api/track-info?${qs}`);
+              const data = await res.json();
+              return {
+                id: item.id,
+                live: {
+                  listeners: data.listeners ?? undefined,
+                  duration: data.duration ?? undefined,
+                  album: data.album ?? undefined,
+                },
+              };
+            }
+          } catch {
+            // silent
+          }
+          return null;
+        })
+      );
+
+      const map: Record<string, LiveData> = {};
+      for (const r of results) {
+        if (r) map[r.id] = r.live;
+      }
+      setLiveData(map);
+    };
+
+    fetchAll();
+  }, [ready, favourites]);
 
   const sorted = [...favourites].sort((a, b) => b.addedAt - a.addedAt);
   const artists = sorted.filter(f => f.kind === "artist");
@@ -52,7 +131,7 @@ export default function FavouritesPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="py-8 border-b-2 border-foreground flex-shrink-0">
-        <div className="max-w-2xl mx-auto px-4 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 flex items-center gap-4">
           <Link href="/" className="text-muted hover:text-foreground transition-colors" aria-label="Retour">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -67,7 +146,7 @@ export default function FavouritesPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8 w-full">
+      <main className="max-w-4xl mx-auto px-4 py-8 w-full">
         {!ready ? null : favourites.length === 0 ? (
           <EmptyState
             title="Aucun favori pour le moment"
@@ -81,7 +160,7 @@ export default function FavouritesPage() {
                   Artistes
                 </h2>
                 {artists.map(item => (
-                  <FavouriteRow key={item.id} item={item} onRemove={() => remove(item.id)} />
+                  <FavouriteRow key={item.id} item={item} live={liveData[item.id]} onRemove={() => remove(item.id)} />
                 ))}
               </section>
             )}
@@ -91,7 +170,7 @@ export default function FavouritesPage() {
                   Titres
                 </h2>
                 {tracks.map(item => (
-                  <FavouriteRow key={item.id} item={item} onRemove={() => remove(item.id)} />
+                  <FavouriteRow key={item.id} item={item} live={liveData[item.id]} onRemove={() => remove(item.id)} />
                 ))}
               </section>
             )}
