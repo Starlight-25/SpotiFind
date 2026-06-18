@@ -19,7 +19,7 @@ export default function TrackRow({ rank, name, duration, playcount, favouriteIte
   const time = duration ? formatDuration(duration) : null;
   const plays = playcount ? Number(playcount).toLocaleString("fr-FR") : null;
   return (
-    <div className="flex items-center gap-4 py-3 hover:bg-border hover:rounded transition-colors">
+    <div className="flex items-center gap-4 py-3 px-3 hover:bg-border hover:rounded transition-colors">
       <span className="w-6 text-right text-sm text-muted flex-shrink-0 tabular-nums">{rank}</span>
       <span className="flex-1 text-sm font-medium text-foreground truncate">{name}</span>
       {plays && (
