@@ -39,25 +39,30 @@ async function enrichArtistThumb(artist: Record<string, unknown>): Promise<Recor
 export async function GET() {
   try {
     const key = getLastfmKey();
-    const [artistsRes, albumsRes] = await Promise.all([
+    const [artistsRes, albumsPopRes, albumsRockRes] = await Promise.all([
       fetch(`${LASTFM_BASE}?method=chart.getTopArtists&limit=10&api_key=${key}&format=json`, { cache: "no-store" }),
       fetch(`${LASTFM_BASE}?method=tag.getTopAlbums&tag=pop&limit=10&api_key=${key}&format=json`, { cache: "no-store" }),
+      fetch(`${LASTFM_BASE}?method=tag.getTopAlbums&tag=rock&limit=10&api_key=${key}&format=json`, { cache: "no-store" }),
     ]);
 
     const artistsData = await artistsRes.json();
-    const albumsData = await albumsRes.json();
+    const albumsPopData = await albumsPopRes.json();
+    const albumsRockData = await albumsRockRes.json();
 
     const rawArtists: Record<string, unknown>[] = artistsData.artists?.artist ?? [];
     const enrichedArtists = await Promise.all(rawArtists.map(enrichArtistThumb));
 
-    const rawAlbums: Record<string, unknown>[] = albumsData.albums?.album ?? [];
-    const albums = rawAlbums.map((a) => ({
-      name: a.name as string,
-      artist: (a.artist as { name: string })?.name ?? "",
-      image: pickImage(a.image as { "#text": string; size: string }[]),
-    }));
+    const parseAlbums = (raw: Record<string, unknown>[]) =>
+      raw.map((a) => ({
+        name: a.name as string,
+        artist: (a.artist as { name: string })?.name ?? "",
+        image: pickImage(a.image as { "#text": string; size: string }[]),
+      }));
 
-    return NextResponse.json({ artists: enrichedArtists, albums });
+    const albums = parseAlbums(albumsPopData.albums?.album ?? []);
+    const albumsRock = parseAlbums(albumsRockData.albums?.album ?? []);
+
+    return NextResponse.json({ artists: enrichedArtists, albums, albumsRock });
   } catch (err) {
     console.error("[home route]", err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });

@@ -7,6 +7,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ## [Unreleased]
 
+### Added
+
+- **home — albums rock en parallèle** : deuxième appel `tag.getTopAlbums` (tag=rock, limit=10) lancé en parallèle du fetch pop existant dans `src/app/api/home/route.ts` ; nouvelle fonction utilitaire `parseAlbums` mutualisée ; réponse JSON enrichie avec le champ `albumsRock: HomeAlbum[]` ; type `HomeCharts` mis à jour dans `src/hooks/useHomeCharts.ts` ; nouvelle section "Trending Albums — Rock" rendue dans `HomeCharts.tsx` avec animation `scroll-fade-in` sur chaque carte
+
 ### Changed
 
 - **search — augmentation des limites Last.fm** : `track.search` et `album.search` passent de 5 à 20 résultats par requête (`limit=20` dans `lastfmSearch`) ; `artist.search` conserve `limit=5`

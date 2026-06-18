@@ -64,13 +64,27 @@ export default function HomeCharts() {
         </ArtistScroller>
       </div>
 
-      {/* Nouveaux albums */}
-      <div className="flex-shrink-0">
+      {/* Albums Pop */}
+      <div className="flex-shrink-0 mb-8">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
-          Trending Albums
+          Trending Albums — Pop
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
           {data.albums.map((a, i) => (
+            <div key={i} className="scroll-fade-in">
+              <AlbumCard album={a} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Albums Rock */}
+      <div className="flex-shrink-0">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+          Trending Albums — Rock
+        </h2>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+          {data.albumsRock.map((a, i) => (
             <div key={i} className="scroll-fade-in">
               <AlbumCard album={a} />
             </div>
