@@ -2,6 +2,7 @@ import Image from "next/image";
 import { fetchArtistByName, fetchArtistSpotifyData } from "@/lib/artist-service";
 import ArtistTopTracks from "@/components/ArtistTopTracks";
 import ArtistAlbums from "@/components/ArtistAlbums";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface PageProps {
   params: { id: string };
@@ -16,7 +17,14 @@ export default async function ArtistPage({ params }: PageProps) {
   ]);
 
   if (!artist) {
-    return <p className="p-8 text-muted">Artiste introuvable.</p>;
+    return (
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        <ErrorBanner
+          message="Artiste introuvable."
+          details={`Aucun résultat pour « ${name} ». Vérifie l'orthographe ou essaie un autre artiste.`}
+        />
+      </main>
+    );
   }
 
   return (

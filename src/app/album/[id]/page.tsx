@@ -2,6 +2,7 @@ import { fetchAlbumByName, fetchAlbumForTrack } from "@/lib/album-service";
 import { decodeAlbumSlug } from "@/lib/album-utils";
 import AlbumHero from "@/components/AlbumHero";
 import TrackList from "@/components/TrackList";
+import EmptyState from "@/components/EmptyState";
 
 interface PageProps {
   params: { id: string };
@@ -34,7 +35,11 @@ export default async function AlbumPage({ params, searchParams }: PageProps) {
         </main>
       );
     }
-    return <p className="p-8 text-muted">Album introuvable.</p>;
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        <EmptyState title="Album introuvable" subtitle="Cet album n'existe pas dans notre base de données." />
+      </main>
+    );
   }
 
   return (
