@@ -57,6 +57,8 @@ export interface ArtistTopTrack {
   imageUrl: string | null;
   albumName: string | null;
   listeners: string | null;
+  playcount?: string | null;
+  duration?: string | null;
 }
 
 export interface ArtistAlbum {

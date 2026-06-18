@@ -61,7 +61,7 @@ async function fetchLastfmTrackInfo(
   artist: string,
   track: string,
   apiKey: string
-): Promise<{ imageUrl: string | null; albumName: string | null }> {
+): Promise<{ imageUrl: string | null; albumName: string | null; duration: string | null; playcount: string | null }> {
   try {
     const qs = new URLSearchParams({
       method: "track.getInfo",
@@ -71,15 +71,18 @@ async function fetchLastfmTrackInfo(
       format: "json",
     });
     const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
-    if (!res.ok) return { imageUrl: null, albumName: null };
+    if (!res.ok) return { imageUrl: null, albumName: null, duration: null, playcount: null };
     const data = await res.json();
-    const album = data?.track?.album;
+    const t = data?.track;
+    const album = t?.album;
     return {
       imageUrl: pickLastfmImage(album?.image),
       albumName: (album?.title as string | undefined) ?? null,
+      duration: (t?.duration as string | undefined) ?? null,
+      playcount: (t?.playcount as string | undefined) ?? null,
     };
   } catch {
-    return { imageUrl: null, albumName: null };
+    return { imageUrl: null, albumName: null, duration: null, playcount: null };
   }
 }
 
@@ -108,6 +111,8 @@ async function fetchLastfmTopTracks(name: string): Promise<ArtistTopTrack[]> {
           imageUrl: info.imageUrl,
           albumName: info.albumName,
           listeners: t.listeners ?? null,
+          playcount: info.playcount,
+          duration: info.duration,
         }))
       )
     );
@@ -227,11 +232,17 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
         album: { name: string; images: { url: string }[] };
       }>;
       if (Array.isArray(tracks) && tracks.length > 0) {
-        topTracks = tracks.slice(0, 10).map(t => ({
-          name: t.name,
-          imageUrl: t.album?.images?.[0]?.url ?? null,
-          albumName: t.album?.name ?? null,
-          listeners: null,
+        const apiKey = process.env.LASTFM_API_KEY ?? "";
+        topTracks = await Promise.all(tracks.slice(0, 10).map(async t => {
+          const info = apiKey ? await fetchLastfmTrackInfo(name, t.name, apiKey) : { playcount: null, duration: null, imageUrl: null, albumName: null };
+          return {
+            name: t.name,
+            imageUrl: t.album?.images?.[0]?.url ?? null,
+            albumName: t.album?.name ?? null,
+            listeners: null,
+            playcount: info.playcount,
+            duration: info.duration,
+          };
         }));
       } else {
         console.error("[artist-service] Spotify top-tracks returned empty array");

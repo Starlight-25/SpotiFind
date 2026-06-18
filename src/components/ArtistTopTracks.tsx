@@ -15,7 +15,7 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
   return (
     <section className="w-full">
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
-        Top titres
+        Top Tracks
       </h2>
       {tracks.map((track, i) => {
         const row = (
@@ -32,15 +32,20 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
             ) : (
               <div className="w-10 h-10 rounded bg-border flex-shrink-0" />
             )}
-            <span className="flex-1 text-sm font-medium text-foreground truncate">{track.name}</span>
-            {track.albumName && (
-              <span className="text-xs text-muted flex-shrink-0 truncate max-w-[140px] hidden sm:block">
-                {track.albumName}
+            <div className="flex-1 flex items-center gap-2 min-w-0">
+              <span className="text-sm font-medium text-foreground truncate">{track.name}</span>
+              {track.albumName && (
+                <span className="text-xs text-muted flex-shrink-0 truncate max-w-[120px] hidden sm:block">{track.albumName}</span>
+              )}
+            </div>
+            {track.playcount && (
+              <span className="text-xs text-muted flex-shrink-0 hidden md:block tabular-nums">
+                {Number(track.playcount).toLocaleString("fr-FR")} plays
               </span>
             )}
-            {track.listeners && (
-              <span className="text-xs text-muted flex-shrink-0 hidden md:block tabular-nums">
-                {Number(track.listeners).toLocaleString("fr-FR")} auditeurs
+            {track.duration && Number(track.duration) > 0 && (
+              <span className="text-xs text-muted flex-shrink-0 tabular-nums">
+                {Math.floor(Number(track.duration) / 1000 / 60)}:{String(Math.floor((Number(track.duration) / 1000) % 60)).padStart(2, "0")}
               </span>
             )}
             <HeartButton

@@ -4,6 +4,7 @@ import ArtistTopTracks from "@/components/ArtistTopTracks";
 import ArtistAlbums from "@/components/ArtistAlbums";
 import ErrorBanner from "@/components/ErrorBanner";
 import HeartButton from "@/components/HeartButton";
+import BackButton from "@/components/BackButton";
 import { buildFavouriteId } from "@/lib/favourite-utils";
 
 interface PageProps {
@@ -30,7 +31,10 @@ export default async function ArtistPage({ params }: PageProps) {
   }
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 flex flex-col items-center gap-8">
+    <main className="relative max-w-5xl mx-auto px-4 py-8 flex flex-col items-center gap-8">
+      <div className="absolute top-8 left-4">
+        <BackButton />
+      </div>
       {artist.thumb ? (
         <Image
           src={artist.thumb}
@@ -44,15 +48,22 @@ export default async function ArtistPage({ params }: PageProps) {
           {artist.name.charAt(0)}
         </div>
       )}
-      <div className="flex items-center gap-3">
-        <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
-        <HeartButton
-          id={buildFavouriteId("artist", artist.name)}
-          kind="artist"
-          name={artist.name}
-          imageUrl={artist.thumb ?? undefined}
-          href={`/artist/${encodeURIComponent(artist.name)}`}
-        />
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
+          <HeartButton
+            id={buildFavouriteId("artist", artist.name)}
+            kind="artist"
+            name={artist.name}
+            imageUrl={artist.thumb ?? undefined}
+            href={`/artist/${encodeURIComponent(artist.name)}`}
+          />
+        </div>
+        {artist.listeners && (
+          <p className="text-sm text-muted">
+            {Number(artist.listeners).toLocaleString("fr-FR")} monthly listeners
+          </p>
+        )}
       </div>
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
       <ArtistAlbums albums={albums} artistName={artist.name} />
