@@ -30,7 +30,7 @@ function AlbumCard({ album }: { album: HomeAlbum }) {
       className="flex flex-col rounded-xl hover:bg-border transition-colors p-1 -m-1"
     >
       {album.image ? (
-        <Image src={album.image} alt={album.name} width={144} height={144} className="rounded object-cover w-full aspect-square" />
+        <Image src={album.image} alt={album.name} width={144} height={144} className="rounded-xl object-cover w-full aspect-square" />
       ) : (
         <div className="w-full aspect-square rounded bg-border flex items-center justify-center text-muted text-4xl font-bold uppercase">
           {album.name.charAt(0)}

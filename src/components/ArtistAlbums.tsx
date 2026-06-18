@@ -33,7 +33,7 @@ export default function ArtistAlbums({ albums, artistName }: ArtistAlbumsProps) 
                 alt={album.name}
                 width={180}
                 height={180}
-                className="w-full aspect-square object-cover rounded shadow-sm"
+                className="w-full aspect-square object-cover rounded-xl shadow-sm"
               />
             ) : (
               <div className="w-full aspect-square rounded bg-border flex items-center justify-center text-muted text-3xl font-bold uppercase">
