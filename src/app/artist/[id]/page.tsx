@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { fetchArtistByName, fetchArtistTopTracks, fetchArtistAlbums } from "@/lib/artist-service";
+import { fetchArtistByName, fetchArtistSpotifyData } from "@/lib/artist-service";
 import ArtistTopTracks from "@/components/ArtistTopTracks";
 import ArtistAlbums from "@/components/ArtistAlbums";
 
@@ -10,10 +10,9 @@ interface PageProps {
 export default async function ArtistPage({ params }: PageProps) {
   const name = decodeURIComponent(params.id);
 
-  const [artist, topTracks, albums] = await Promise.all([
+  const [artist, { topTracks, albums }] = await Promise.all([
     fetchArtistByName(name),
-    fetchArtistTopTracks(name),
-    fetchArtistAlbums(name),
+    fetchArtistSpotifyData(name),
   ]);
 
   if (!artist) {
@@ -36,7 +35,7 @@ export default async function ArtistPage({ params }: PageProps) {
         </div>
       )}
       <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
-      <ArtistTopTracks tracks={topTracks} />
+      <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
       <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>
   );

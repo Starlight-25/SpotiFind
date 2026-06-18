@@ -50,7 +50,8 @@ export interface AlbumDetail {
 
 export interface ArtistTopTrack {
   name: string;
-  playcount: string;
+  imageUrl: string | null;
+  albumName: string | null;
 }
 
 export interface ArtistAlbum {

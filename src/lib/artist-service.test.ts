@@ -1,4 +1,4 @@
-import { fetchArtistTopTracks, fetchArtistAlbums } from "./artist-service";
+import { fetchArtistSpotifyData } from "./artist-service";
 import { invalidateToken } from "./spotify";
 
 const mockFetch = jest.fn();
@@ -9,70 +9,60 @@ beforeEach(() => {
   invalidateToken();
 });
 
-describe("fetchArtistTopTracks", () => {
-  it("returns top 10 tracks from Last.fm", async () => {
-    process.env.LASTFM_API_KEY = "test-key";
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        toptracks: {
-          track: [
-            { name: "Track A", playcount: "1000000" },
-            { name: "Track B", playcount: "800000" },
-          ],
-        },
-      }),
-    });
-
-    const tracks = await fetchArtistTopTracks("Radiohead");
-    expect(tracks).toHaveLength(2);
-    expect(tracks[0]).toEqual({ name: "Track A", playcount: "1000000" });
-  });
-
-  it("returns empty array when Last.fm errors", async () => {
-    process.env.LASTFM_API_KEY = "test-key";
-    mockFetch.mockResolvedValueOnce({ ok: false, status: 503 });
-    const tracks = await fetchArtistTopTracks("Unknown");
-    expect(tracks).toEqual([]);
-  });
-});
-
-describe("fetchArtistAlbums", () => {
-  it("returns albums sorted by release_date descending", async () => {
+describe("fetchArtistSpotifyData", () => {
+  it("returns topTracks with imageUrl and albumName", async () => {
     process.env.SPOTIFY_CLIENT_ID = "id";
     process.env.SPOTIFY_CLIENT_SECRET = "secret";
 
-    // token fetch
+    // token
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ access_token: "tok", expires_in: 3600 }),
     });
-    // Spotify search
+    // search artist
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ artists: { items: [{ id: "artist123" }] } }),
+    });
+    // top-tracks
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({
-        artists: { items: [{ id: "artist123" }] },
+        tracks: [
+          { name: "Creep", album: { name: "Pablo Honey", images: [{ url: "http://img1" }] } },
+          { name: "Karma Police", album: { name: "OK Computer", images: [{ url: "http://img2" }] } },
+        ],
       }),
     });
-    // Spotify albums
+    // albums
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({
         items: [
-          { name: "Album Old", release_date: "2010-01-01", images: [{ url: "http://img2" }] },
-          { name: "Album New", release_date: "2023-06-15", images: [{ url: "http://img1" }] },
+          { name: "Pablo Honey", release_date: "1993-02-22", images: [{ url: "http://cover1" }] },
+          { name: "OK Computer", release_date: "1997-05-21", images: [{ url: "http://cover2" }] },
         ],
       }),
     });
 
-    const albums = await fetchArtistAlbums("Radiohead");
-    expect(albums[0].name).toBe("Album New");
-    expect(albums[1].name).toBe("Album Old");
+    const result = await fetchArtistSpotifyData("Radiohead");
+
+    expect(result.topTracks).toHaveLength(2);
+    expect(result.topTracks[0]).toEqual({
+      name: "Creep",
+      imageUrl: "http://img1",
+      albumName: "Pablo Honey",
+    });
+
+    expect(result.albums).toHaveLength(2);
+    expect(result.albums[0].name).toBe("OK Computer");
+    expect(result.albums[1].name).toBe("Pablo Honey");
   });
 
-  it("returns empty array when artist not found on Spotify", async () => {
+  it("returns empty arrays when artist not found on Spotify", async () => {
     process.env.SPOTIFY_CLIENT_ID = "id";
     process.env.SPOTIFY_CLIENT_SECRET = "secret";
 
@@ -86,7 +76,23 @@ describe("fetchArtistAlbums", () => {
       json: async () => ({ artists: { items: [] } }),
     });
 
-    const albums = await fetchArtistAlbums("NonExistent");
-    expect(albums).toEqual([]);
+    const result = await fetchArtistSpotifyData("NonExistent");
+    expect(result.topTracks).toEqual([]);
+    expect(result.albums).toEqual([]);
+  });
+
+  it("returns empty arrays when Spotify search fails", async () => {
+    process.env.SPOTIFY_CLIENT_ID = "id";
+    process.env.SPOTIFY_CLIENT_SECRET = "secret";
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ access_token: "tok", expires_in: 3600 }),
+    });
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 503 });
+
+    const result = await fetchArtistSpotifyData("Radiohead");
+    expect(result.topTracks).toEqual([]);
+    expect(result.albums).toEqual([]);
   });
 });

@@ -24,61 +24,76 @@ export async function fetchArtistByName(name: string): Promise<ArtistDetail | nu
   }
 }
 
-export async function fetchArtistTopTracks(name: string): Promise<ArtistTopTrack[]> {
+export async function fetchArtistSpotifyData(name: string): Promise<{
+  topTracks: ArtistTopTrack[];
+  albums: ArtistAlbum[];
+}> {
   try {
-    const apiKey = process.env.LASTFM_API_KEY;
-    if (!apiKey) return [];
-    const qs = new URLSearchParams({
-      method: "artist.getTopTracks",
-      artist: name,
-      limit: "10",
-      api_key: apiKey,
-      format: "json",
-    });
-    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    const tracks = data?.toptracks?.track;
-    if (!Array.isArray(tracks)) return [];
-    return tracks.map((t: { name: string; playcount: string }) => ({
-      name: t.name,
-      playcount: t.playcount,
-    }));
-  } catch {
-    return [];
-  }
-}
-
-export async function fetchArtistAlbums(name: string): Promise<ArtistAlbum[]> {
-  try {
+    // 1. Get Spotify artist ID (artist: prefix for accurate match)
     const searchRes = await fetchSpotify(
-      `/search?q=${encodeURIComponent(name)}&type=artist&limit=1`
+      `/search?q=${encodeURIComponent(`artist:${name}`)}&type=artist&limit=1`
     );
-    if (!searchRes.ok) return [];
+    if (!searchRes.ok) {
+      console.error("[artist-service] Spotify search failed:", searchRes.status);
+      return { topTracks: [], albums: [] };
+    }
     const searchData = await searchRes.json();
     const artistId = searchData?.artists?.items?.[0]?.id as string | undefined;
-    if (!artistId) return [];
+    if (!artistId) {
+      console.error("[artist-service] No Spotify artist found for:", name);
+      return { topTracks: [], albums: [] };
+    }
 
-    const albumsRes = await fetchSpotify(
-      `/artists/${artistId}/albums?include_groups=album&limit=50`
-    );
-    if (!albumsRes.ok) return [];
-    const albumsData = await albumsRes.json();
-    const items = albumsData?.items as Array<{
-      name: string;
-      release_date: string;
-      images: { url: string }[];
-    }>;
-    if (!Array.isArray(items)) return [];
+    // 2. Fetch top-tracks and albums in parallel
+    const [topTracksRes, albumsRes] = await Promise.all([
+      fetchSpotify(`/artists/${artistId}/top-tracks?market=FR`),
+      fetchSpotify(`/artists/${artistId}/albums?include_groups=album,single&limit=50`),
+    ]);
 
-    return items
-      .map(a => ({
-        name: a.name,
-        release_date: a.release_date,
-        imageUrl: a.images?.[0]?.url ?? null,
-      }))
-      .sort((a, b) => b.release_date.localeCompare(a.release_date));
-  } catch {
-    return [];
+    // Top tracks (Spotify returns album info with images)
+    let topTracks: ArtistTopTrack[] = [];
+    if (topTracksRes.ok) {
+      const data = await topTracksRes.json();
+      const tracks = data?.tracks as Array<{
+        name: string;
+        album: { name: string; images: { url: string }[] };
+      }>;
+      if (Array.isArray(tracks)) {
+        topTracks = tracks.slice(0, 10).map(t => ({
+          name: t.name,
+          imageUrl: t.album?.images?.[0]?.url ?? null,
+          albumName: t.album?.name ?? null,
+        }));
+      }
+    } else {
+      console.error("[artist-service] Spotify top-tracks failed:", topTracksRes.status);
+    }
+
+    // Albums sorted newest first
+    let albums: ArtistAlbum[] = [];
+    if (albumsRes.ok) {
+      const data = await albumsRes.json();
+      const items = data?.items as Array<{
+        name: string;
+        release_date: string;
+        images: { url: string }[];
+      }>;
+      if (Array.isArray(items)) {
+        albums = items
+          .map(a => ({
+            name: a.name,
+            release_date: a.release_date,
+            imageUrl: a.images?.[0]?.url ?? null,
+          }))
+          .sort((a, b) => b.release_date.localeCompare(a.release_date));
+      }
+    } else {
+      console.error("[artist-service] Spotify albums failed:", albumsRes.status);
+    }
+
+    return { topTracks, albums };
+  } catch (err) {
+    console.error("[artist-service] fetchArtistSpotifyData threw:", err);
+    return { topTracks: [], albums: [] };
   }
 }
