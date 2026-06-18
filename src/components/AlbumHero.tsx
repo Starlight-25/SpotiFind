@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { LastfmImage } from "@/lib/music-types";
 
 function getBestImage(images: LastfmImage[]): string {
@@ -34,7 +35,12 @@ export default function AlbumHero({ name, artist, images }: AlbumHeroProps) {
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Album</p>
         <h1 className="text-3xl font-bold text-foreground truncate">{name}</h1>
-        <p className="text-lg text-muted mt-1 truncate">{artist}</p>
+        <Link
+          href={`/artist/${encodeURIComponent(artist)}`}
+          className="text-lg text-muted mt-1 truncate hover:text-foreground hover:underline transition-colors"
+        >
+          {artist}
+        </Link>
       </div>
     </div>
   );
