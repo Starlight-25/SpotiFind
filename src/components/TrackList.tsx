@@ -1,12 +1,16 @@
 import type { LastfmTrackDetail } from "@/lib/music-types";
 import TrackRow from "@/components/TrackRow";
 import EmptyState from "@/components/EmptyState";
+import { buildFavouriteId } from "@/lib/favourite-utils";
 
 interface TrackListProps {
   tracks: LastfmTrackDetail[];
+  albumArtist?: string;
+  albumImageUrl?: string;
+  albumHref?: string;
 }
 
-export default function TrackList({ tracks }: TrackListProps) {
+export default function TrackList({ tracks, albumArtist, albumImageUrl, albumHref }: TrackListProps) {
   if (tracks.length === 0) {
     return <EmptyState title="Aucune piste disponible" subtitle="Cet album ne contient pas de tracklist dans notre base." />;
   }
@@ -22,6 +26,14 @@ export default function TrackList({ tracks }: TrackListProps) {
           name={track.name}
           duration={track.duration}
           listeners={track.listeners}
+          favouriteItem={albumArtist && albumHref ? {
+            id: buildFavouriteId("track", track.name, albumArtist),
+            kind: "track",
+            name: track.name,
+            artist: albumArtist,
+            imageUrl: albumImageUrl,
+            href: albumHref,
+          } : undefined}
         />
       ))}
     </div>

@@ -23,10 +23,6 @@ function writeToStorage(items: FavouriteItem[]): void {
   }
 }
 
-export function buildFavouriteId(kind: FavouriteItem["kind"], name: string, artist?: string): string {
-  return artist ? `${kind}:${artist}:${name}` : `${kind}:${name}`;
-}
-
 export function useFavourites() {
   const [favourites, setFavourites] = useState<FavouriteItem[]>([]);
   const [ready, setReady] = useState(false);
