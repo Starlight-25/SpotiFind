@@ -20,6 +20,7 @@ export default function TrackList({ tracks }: TrackListProps) {
           rank={Number(track["@attr"]?.rank ?? i + 1)}
           name={track.name}
           duration={track.duration}
+          listeners={track.listeners}
         />
       ))}
     </div>

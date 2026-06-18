@@ -38,6 +38,7 @@ export interface SearchResults {
 export interface LastfmTrackDetail {
   name: string;
   duration: string;
+  listeners?: string;
   "@attr"?: { rank: string };
 }
 
@@ -46,6 +47,8 @@ export interface AlbumDetail {
   artist: string;
   image: LastfmImage[];
   tracks: LastfmTrackDetail[];
+  playcount?: string;
+  listeners?: string;
 }
 
 export interface ArtistTopTrack {

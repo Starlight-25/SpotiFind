@@ -15,9 +15,11 @@ interface AlbumHeroProps {
   name: string;
   artist: string;
   images: LastfmImage[];
+  playcount?: string;
+  listeners?: string;
 }
 
-export default function AlbumHero({ name, artist, images }: AlbumHeroProps) {
+export default function AlbumHero({ name, artist, images, playcount, listeners }: AlbumHeroProps) {
   const cover = getBestImage(images);
   return (
     <div className="flex items-end gap-6 mb-8">
@@ -41,6 +43,14 @@ export default function AlbumHero({ name, artist, images }: AlbumHeroProps) {
         >
           {artist}
         </Link>
+        <div className="flex gap-4 mt-2">
+          {listeners && (
+            <p className="text-xs text-muted">{Number(listeners).toLocaleString("fr-FR")} auditeurs</p>
+          )}
+          {playcount && (
+            <p className="text-xs text-muted">{Number(playcount).toLocaleString("fr-FR")} écoutes</p>
+          )}
+        </div>
       </div>
     </div>
   );

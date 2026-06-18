@@ -27,15 +27,32 @@ export async function fetchAlbumByName(
         artist: string;
         image: LastfmImage[];
         tracks?: { track: unknown };
+        playcount?: string;
+        listeners?: string;
       };
     };
     const raw = data?.album;
     if (!raw) return null;
+    const tracks = normalizeTracks(raw.tracks?.track);
+    const tracksWithListeners = await Promise.all(
+      tracks.map(async (track) => {
+        try {
+          const info = (await lastfmGet({ method: "track.getInfo", artist: raw.artist, track: track.name })) as {
+            track?: { listeners?: string };
+          };
+          return { ...track, listeners: info?.track?.listeners };
+        } catch {
+          return track;
+        }
+      })
+    );
     return {
       name: raw.name,
       artist: raw.artist,
       image: raw.image ?? [],
-      tracks: normalizeTracks(raw.tracks?.track),
+      tracks: tracksWithListeners,
+      playcount: raw.playcount,
+      listeners: raw.listeners,
     };
   } catch (err) {
     console.error("[album-service] fetchAlbumByName", err);

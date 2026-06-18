@@ -39,7 +39,7 @@ export default async function AlbumPage({ params, searchParams }: PageProps) {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
-      <AlbumHero name={album.name} artist={album.artist} images={album.image} />
+      <AlbumHero name={album.name} artist={album.artist} images={album.image} playcount={album.playcount} listeners={album.listeners} />
       <TrackList tracks={album.tracks} />
     </main>
   );
