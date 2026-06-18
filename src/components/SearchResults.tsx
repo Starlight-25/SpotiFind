@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
 import EmptyState from "@/components/EmptyState";
+import HeartButton from "@/components/HeartButton";
+import { buildFavouriteId } from "@/lib/favourite-utils";
 import type { SearchResults, LastfmTrack, LastfmArtist, LastfmAlbum, LastfmImage } from "@/lib/music-types";
 
 function getImage(images: LastfmImage[], size: "large" | "extralarge" = "large") {
@@ -11,9 +13,10 @@ function getImage(images: LastfmImage[], size: "large" | "extralarge" = "large")
 
 function TrackCard({ track }: { track: LastfmTrack }) {
   const cover = getImage(track.image);
+  const albumHref = `/album/${encodeAlbumSlug(track.artist, track.name)}?isTrack=1`;
   return (
     <Link
-      href={`/album/${encodeAlbumSlug(track.artist, track.name)}?isTrack=1`}
+      href={albumHref}
       className="flex items-center gap-3 py-2 rounded hover:bg-border transition-colors"
     >
       {cover ? (
@@ -30,6 +33,14 @@ function TrackCard({ track }: { track: LastfmTrack }) {
           {Number(track.listeners).toLocaleString()} listeners
         </span>
       )}
+      <HeartButton
+        id={buildFavouriteId("track", track.name, track.artist)}
+        kind="track"
+        name={track.name}
+        artist={track.artist}
+        imageUrl={cover || undefined}
+        href={albumHref}
+      />
     </Link>
   );
 }
