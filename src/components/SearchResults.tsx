@@ -17,7 +17,7 @@ function TrackCard({ track }: { track: LastfmTrack }) {
   return (
     <Link
       href={albumHref}
-      className="flex items-center gap-3 py-2 rounded hover:bg-border transition-colors"
+      className="flex items-center gap-3 py-2 px-2 rounded hover:bg-border transition-colors"
     >
       {cover ? (
         <Image src={cover} alt={track.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
@@ -69,7 +69,7 @@ function AlbumCard({ album }: { album: LastfmAlbum }) {
   return (
     <Link
       href={`/album/${encodeAlbumSlug(album.artist, album.name)}`}
-      className="flex items-center gap-3 py-2 rounded hover:bg-border transition-colors"
+      className="flex items-center gap-3 py-2 px-2 rounded hover:bg-border transition-colors"
     >
       {cover ? (
         <Image src={cover} alt={album.name} width={40} height={40} className="rounded flex-shrink-0 object-cover" />
@@ -90,7 +90,7 @@ function Column({ title, children }: { title: string; children: React.ReactNode 
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border flex-shrink-0">
         {title}
       </h2>
-      <div className="flex-1 overflow-y-auto divide-y divide-border">
+      <div className="flex-1 overflow-y-auto divide-y divide-border px-2">
         {children}
       </div>
     </div>
