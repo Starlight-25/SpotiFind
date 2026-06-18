@@ -1,8 +1,12 @@
+import HeartButton from "@/components/HeartButton";
+import type { FavouriteItem } from "@/lib/music-types";
+
 interface TrackRowProps {
   rank: number;
   name: string;
   duration?: string;
   listeners?: string;
+  favouriteItem?: Omit<FavouriteItem, "addedAt">;
 }
 
 function formatDuration(seconds: string): string | null {
@@ -11,7 +15,7 @@ function formatDuration(seconds: string): string | null {
   return `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, "0")}`;
 }
 
-export default function TrackRow({ rank, name, duration, listeners }: TrackRowProps) {
+export default function TrackRow({ rank, name, duration, listeners, favouriteItem }: TrackRowProps) {
   const time = duration ? formatDuration(duration) : null;
   const plays = listeners ? Number(listeners).toLocaleString("fr-FR") : null;
   return (
@@ -24,6 +28,7 @@ export default function TrackRow({ rank, name, duration, listeners }: TrackRowPr
       {time && (
         <span className="text-xs text-muted flex-shrink-0 tabular-nums">{time}</span>
       )}
+      {favouriteItem && <HeartButton {...favouriteItem} />}
     </div>
   );
 }

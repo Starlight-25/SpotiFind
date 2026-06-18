@@ -9,6 +9,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **favourites — couche logique (localStorage)** : type `FavouriteItem` + `FavouriteKind` dans `music-types.ts` ; utilitaire `buildFavouriteId(kind, name, artist?)` dans `favourite-utils.ts` (format ID stable `"<kind>:<artist>:<name>"`) ; hook `useFavourites()` dans `hooks/useFavourites.ts` (clé localStorage `spotifind_favourites`, API : `favourites`, `isFavourite`, `toggle`, `remove`, `ready`) ; `HeartButton` Client Component (bouton cœur SVG 15×15 toggleable, évite flash hydratation via flag `ready`) ; intégration `HeartButton` dans `ArtistTopTracks` (à droite de la colonne auditeurs) ; props `albumArtist`, `albumImageUrl`, `albumHref` ajoutées à `TrackList` pour passer le contexte album à chaque `TrackRow`
+
 - **artist-page — top tracks + albums** : `fetchArtistTopTracks()` (Last.fm `artist.getTopTracks`, limit=10) et `fetchArtistAlbums()` (Spotify search artist → albums triés par `release_date` desc) dans `artist-service.ts` ; composant `ArtistTopTracks` (liste numérotée avec playcount formaté) ; composant `ArtistAlbums` (grille cliquable via `<Link>` vers `/album/[encodeAlbumSlug]`, cover Spotify + année) ; page `/artist/[id]` mise à jour avec fetch parallèle (`Promise.all`) des trois sources et rendu des deux nouvelles sections
 
 ### Changed

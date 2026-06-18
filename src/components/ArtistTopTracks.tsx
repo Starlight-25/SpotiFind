@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
 import type { ArtistTopTrack } from "@/lib/music-types";
+import HeartButton from "@/components/HeartButton";
+import { buildFavouriteId } from "@/lib/favourite-utils";
 
 interface ArtistTopTracksProps {
   tracks: ArtistTopTrack[];
@@ -41,6 +43,14 @@ export default function ArtistTopTracks({ tracks, artistName }: ArtistTopTracksP
                 {Number(track.listeners).toLocaleString("fr-FR")} auditeurs
               </span>
             )}
+            <HeartButton
+              id={buildFavouriteId("track", track.name, artistName)}
+              kind="track"
+              name={track.name}
+              artist={artistName}
+              imageUrl={track.imageUrl ?? undefined}
+              href={track.albumName ? `/album/${encodeAlbumSlug(artistName, track.albumName)}` : `/artist/${encodeURIComponent(artistName)}`}
+            />
           </div>
         );
 

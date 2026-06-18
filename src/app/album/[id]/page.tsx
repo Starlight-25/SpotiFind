@@ -45,7 +45,12 @@ export default async function AlbumPage({ params, searchParams }: PageProps) {
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
       <AlbumHero name={album.name} artist={album.artist} images={album.image} playcount={album.playcount} listeners={album.listeners} />
-      <TrackList tracks={album.tracks} />
+      <TrackList
+        tracks={album.tracks}
+        albumArtist={album.artist}
+        albumImageUrl={album.image.find(i => i.size === "large")?.["#text"]}
+        albumHref={`/album/${params.id}`}
+      />
     </main>
   );
 }

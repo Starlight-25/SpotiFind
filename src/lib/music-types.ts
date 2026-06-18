@@ -63,3 +63,15 @@ export interface ArtistAlbum {
   release_date: string;
   imageUrl: string | null;
 }
+
+export type FavouriteKind = "track" | "album" | "artist";
+
+export interface FavouriteItem {
+  id: string;
+  kind: FavouriteKind;
+  name: string;
+  artist?: string;
+  imageUrl?: string;
+  href: string;
+  addedAt: number;
+}

@@ -4,13 +4,31 @@ import type { ArtistTopTrack, ArtistAlbum } from "@/lib/music-types";
 export interface ArtistDetail {
   name: string;
   thumb: string | null;
+  listeners?: string;
+}
+
+async function fetchLastfmArtistListeners(name: string): Promise<string | undefined> {
+  try {
+    const apiKey = process.env.LASTFM_API_KEY;
+    if (!apiKey) return undefined;
+    const qs = new URLSearchParams({ method: "artist.getInfo", artist: name, api_key: apiKey, format: "json" });
+    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?${qs}`, { cache: "no-store" });
+    if (!res.ok) return undefined;
+    const data = await res.json();
+    return (data?.artist?.stats?.listeners as string | undefined) ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function fetchArtistByName(name: string): Promise<ArtistDetail | null> {
   try {
     const key = process.env.THEAUDIODB_API_KEY ?? "123";
     const url = `https://www.theaudiodb.com/api/v1/json/${key}/search.php?s=${encodeURIComponent(name)}`;
-    const res = await fetch(url, { cache: "no-store" });
+    const [res, listeners] = await Promise.all([
+      fetch(url, { cache: "no-store" }),
+      fetchLastfmArtistListeners(name),
+    ]);
     if (!res.ok) return null;
     const data = await res.json();
     const artist = data.artists?.[0];
@@ -18,6 +36,7 @@ export async function fetchArtistByName(name: string): Promise<ArtistDetail | nu
     return {
       name: artist.strArtist as string,
       thumb: (artist.strArtistThumb as string | null) ?? null,
+      listeners,
     };
   } catch {
     return null;
