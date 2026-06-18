@@ -33,6 +33,22 @@
   }
 }
 
+@keyframes trackFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.track-enter {
+  animation: trackFadeIn 0.35s ease both;
+  animation-delay: var(--track-delay, 0ms);
+}
+
 .scroll-fade-in {
   opacity: 0;
   transform: translateY(var(--slide-from, 14px));
