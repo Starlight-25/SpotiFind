@@ -47,3 +47,14 @@ export interface AlbumDetail {
   image: LastfmImage[];
   tracks: LastfmTrackDetail[];
 }
+
+export interface ArtistTopTrack {
+  name: string;
+  playcount: string;
+}
+
+export interface ArtistAlbum {
+  name: string;
+  release_date: string;
+  imageUrl: string | null;
+}
