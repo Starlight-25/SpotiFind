@@ -1,7 +1,7 @@
-import React from "react";
 import type { LastfmTrackDetail } from "@/lib/music-types";
 import TrackRow from "@/components/TrackRow";
 import EmptyState from "@/components/EmptyState";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import { buildFavouriteId } from "@/lib/favourite-utils";
 
 interface TrackListProps {
@@ -17,6 +17,7 @@ export default function TrackList({ tracks, albumArtist, albumImageUrl, albumHre
   }
   return (
     <div>
+      <ScrollAnimator />
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
         Tracklist
       </h2>
@@ -24,8 +25,7 @@ export default function TrackList({ tracks, albumArtist, albumImageUrl, albumHre
         {tracks.map((track, i) => (
           <div
             key={track.name + i}
-            className="track-enter"
-            style={{ "--track-delay": `${Math.min(i * 40, 600)}ms` } as React.CSSProperties}
+            className="scroll-fade-in"
           >
             <TrackRow
               rank={Number(track["@attr"]?.rank ?? i + 1)}
