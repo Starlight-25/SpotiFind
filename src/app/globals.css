@@ -43,6 +43,33 @@
   transform-origin: center;
 }
 
+@keyframes textReveal {
+  from { clip-path: inset(0 50% 0 50%); }
+  to   { clip-path: inset(0 0% 0 0%); }
+}
+
+.text-reveal {
+  animation: textReveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.25s;
+}
+
+@keyframes photoReveal {
+  from {
+    opacity: 0.6;
+    transform: scale(0.5);
+    filter: blur(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.photo-reveal {
+  animation: photoReveal 0.65s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 @keyframes popIn {
   0%   { opacity: 0; transform: scale(0); }
   60%  { opacity: 1; transform: scale(1.25); }
