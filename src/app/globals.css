@@ -33,6 +33,16 @@
   }
 }
 
+@keyframes searchExpand {
+  from { transform: scaleX(0.07); }
+  to   { transform: scaleX(1); }
+}
+
+.search-expand {
+  animation: searchExpand 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+  transform-origin: center;
+}
+
 @keyframes canvaAppear {
   from { opacity: 0; }
   to   { opacity: 1; }

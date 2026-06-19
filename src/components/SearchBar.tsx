@@ -18,7 +18,7 @@ export default function SearchBar({
   }
 
   return (
-    <div className="relative w-full max-w-xl mx-auto">
+    <div className="relative w-full max-w-xl mx-auto search-expand">
       <svg
         className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
         width="16"
