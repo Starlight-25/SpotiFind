@@ -18,7 +18,7 @@ export default function TrackList({ tracks, albumArtist, albumImageUrl, albumHre
   return (
     <div>
       <ScrollAnimator />
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border reveal-ltr">
         Tracklist
       </h2>
       <div className="divide-y divide-border">
