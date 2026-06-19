@@ -15,8 +15,11 @@ export default function AudioPulseButton() {
     if (!analyser || !data) return;
 
     analyser.getByteFrequencyData(data);
-    const avg = data.reduce((a, b) => a + b, 0) / data.length;
-    const level = Math.min(avg / 55, 1);
+    // Premiers bins uniquement : basses (~20-250 Hz avec fftSize 256 à 44100 Hz)
+    const bassEnd = 4;
+    let bassSum = 0;
+    for (let i = 0; i < bassEnd; i++) bassSum += data[i];
+    const level = Math.min((bassSum / bassEnd) / 180, 1);
 
     const bars = document.querySelectorAll<HTMLElement>(".audio-bar");
     bars.forEach(bar => {
