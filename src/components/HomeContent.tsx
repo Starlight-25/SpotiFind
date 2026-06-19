@@ -31,10 +31,10 @@ export default function HomeContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-8 border-b-2 border-foreground flex-shrink-0">
+      <header className="py-8 flex-shrink-0">
         <div className="grid grid-cols-3 items-center">
           <div />
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 header-enter">
             <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
             <h1 className="text-4xl font-semibold tracking-tight text-spotify">
               SpotiFind
@@ -44,7 +44,7 @@ export default function HomeContent() {
             <Link
               href="/favourites"
               aria-label={`Mes favoris${count > 0 ? ` (${count})` : ""}`}
-              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors"
+              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors pop-in"
             >
               <svg
                 width="22"
@@ -69,6 +69,7 @@ export default function HomeContent() {
           </div>
         </div>
       </header>
+      <div className="h-0.5 bg-foreground search-expand" />
 
       <main className="pt-10 pb-6 flex flex-col">
         <SearchBar value={query} onSearch={handleSearch} />
