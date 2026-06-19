@@ -48,12 +48,13 @@ function TrackCard({ track }: { track: LastfmTrack }) {
   );
 }
 
-function ArtistCard({ artist }: { artist: LastfmArtist }) {
+function ArtistCard({ artist, index = 0 }: { artist: LastfmArtist; index?: number }) {
   const cover = artist.thumb || getImage(artist.image);
   return (
     <Link
       href={`/artist/${encodeURIComponent(artist.name)}`}
-      className="group flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)] [scroll-snap-align:start]"
+      className="group flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)] [scroll-snap-align:start] artist-appear"
+      style={{ "--appear-delay": `${index * 80}ms` } as React.CSSProperties}
     >
       {cover ? (
         <Image src={cover} alt={artist.name} width={112} height={112} className="rounded-full object-cover w-28 h-28 group-hover:brightness-75 transition-all" />
@@ -113,7 +114,7 @@ export default function SearchResults({ results }: { results: SearchResults }) {
           <EmptyState title="Aucun artiste trouvé" subtitle="Essaie un autre nom." />
         ) : (
           <ArtistScroller>
-            {results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
+            {results.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} index={i} />)}
           </ArtistScroller>
         )}
       </div>
