@@ -148,7 +148,7 @@ export default function FavouritesPage() {
           </div>
         </div>
       </header>
-      <div className="h-0.5 bg-foreground search-expand" />
+      <div className="h-0.5 bg-foreground search-expand audio-bar" />
 
       <ScrollAnimator deps={[favourites, ready]} />
       <main className="max-w-4xl mx-auto px-4 py-8 w-full">
@@ -170,7 +170,7 @@ export default function FavouritesPage() {
               </section>
             )}
             {artists.length > 0 && tracks.length > 0 && (
-              <div className="h-0.5 bg-foreground search-expand" />
+              <div className="h-0.5 bg-foreground search-expand audio-bar" />
             )}
             {tracks.length > 0 && (
               <section>

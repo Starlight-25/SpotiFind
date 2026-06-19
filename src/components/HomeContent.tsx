@@ -69,7 +69,7 @@ export default function HomeContent() {
           </div>
         </div>
       </header>
-      <div className="h-0.5 bg-foreground search-expand" />
+      <div className="h-0.5 bg-foreground search-expand audio-bar" />
 
       <main className="pt-10 pb-6 flex flex-col">
         <SearchBar value={query} onSearch={handleSearch} />

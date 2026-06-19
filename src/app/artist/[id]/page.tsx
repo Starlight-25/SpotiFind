@@ -69,7 +69,7 @@ export default async function ArtistPage({ params }: PageProps) {
       <ScrollAnimator />
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
       {topTracks.length > 0 && albums.length > 0 && (
-        <div className="w-full h-0.5 bg-foreground search-expand" />
+        <div className="w-full h-0.5 bg-foreground search-expand audio-bar" />
       )}
       <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>
