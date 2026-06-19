@@ -1,4 +1,3 @@
-import { fetchSpotify } from "@/lib/spotify";
 import type { ArtistTopTrack, ArtistAlbum } from "@/lib/music-types";
 
 export interface ArtistDetail {
@@ -193,100 +192,9 @@ export async function fetchArtistSpotifyData(name: string): Promise<{
   topTracks: ArtistTopTrack[];
   albums: ArtistAlbum[];
 }> {
-  try {
-    // 1. Get Spotify artist ID — plain name search, no field filter
-    const searchRes = await fetchSpotify(
-      `/search?q=${encodeURIComponent(name)}&type=artist&limit=1`
-    );
-    if (!searchRes.ok) {
-      console.error("[artist-service] Spotify search failed:", searchRes.status);
-      const [topTracks, albums] = await Promise.all([
-        fetchLastfmTopTracks(name),
-        fetchLastfmTopAlbums(name),
-      ]);
-      return { topTracks, albums };
-    }
-    const searchData = await searchRes.json();
-    const artistId = searchData?.artists?.items?.[0]?.id as string | undefined;
-    if (!artistId) {
-      console.error("[artist-service] No Spotify artist found for:", name);
-      const [topTracks, albums] = await Promise.all([
-        fetchLastfmTopTracks(name),
-        fetchLastfmTopAlbums(name),
-      ]);
-      return { topTracks, albums };
-    }
-
-    // 2. Fetch top-tracks and albums in parallel
-    const [topTracksRes, albumsRes] = await Promise.all([
-      fetchSpotify(`/artists/${artistId}/top-tracks?market=FR`),
-      fetchSpotify(`/artists/${artistId}/albums?include_groups=album,single&limit=50`),
-    ]);
-
-    // Top tracks — Spotify includes album name + cover, fallback to Last.fm
-    let topTracks: ArtistTopTrack[] = [];
-    if (topTracksRes.ok) {
-      const data = await topTracksRes.json();
-      const tracks = data?.tracks as Array<{
-        name: string;
-        album: { name: string; images: { url: string }[] };
-      }>;
-      if (Array.isArray(tracks) && tracks.length > 0) {
-        const apiKey = process.env.LASTFM_API_KEY ?? "";
-        topTracks = await Promise.all(tracks.slice(0, 10).map(async t => {
-          const info = apiKey ? await fetchLastfmTrackInfo(name, t.name, apiKey) : { playcount: null, duration: null, imageUrl: null, albumName: null };
-          return {
-            name: t.name,
-            imageUrl: t.album?.images?.[0]?.url ?? null,
-            albumName: t.album?.name ?? null,
-            listeners: null,
-            playcount: info.playcount,
-            duration: info.duration,
-          };
-        }));
-      } else {
-        console.error("[artist-service] Spotify top-tracks returned empty array");
-      }
-    } else {
-      console.error("[artist-service] Spotify top-tracks failed:", topTracksRes.status);
-    }
-    if (topTracks.length === 0) {
-      console.error("[artist-service] Falling back to Last.fm top tracks for:", name);
-      topTracks = await fetchLastfmTopTracks(name);
-    }
-
-    // Albums sorted newest first
-    let albums: ArtistAlbum[] = [];
-    if (albumsRes.ok) {
-      const data = await albumsRes.json();
-      const items = data?.items as Array<{
-        name: string;
-        release_date: string;
-        images: { url: string }[];
-      }>;
-      if (Array.isArray(items)) {
-        albums = items
-          .map(a => ({
-            name: a.name,
-            release_date: a.release_date,
-            imageUrl: a.images?.[0]?.url ?? null,
-          }))
-          .sort((a, b) => b.release_date.localeCompare(a.release_date));
-      }
-    } else {
-      console.error("[artist-service] Spotify albums failed:", albumsRes.status);
-    }
-    if (albums.length === 0) {
-      albums = await fetchLastfmTopAlbums(name);
-    }
-
-    return { topTracks, albums };
-  } catch (err) {
-    console.error("[artist-service] fetchArtistSpotifyData threw:", err);
-    const [topTracks, albums] = await Promise.all([
-      fetchLastfmTopTracks(name),
-      fetchLastfmTopAlbums(name),
-    ]);
-    return { topTracks, albums };
-  }
+  const [topTracks, albums] = await Promise.all([
+    fetchLastfmTopTracks(name),
+    fetchLastfmTopAlbums(name),
+  ]);
+  return { topTracks, albums };
 }
