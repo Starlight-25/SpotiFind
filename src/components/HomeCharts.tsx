@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { encodeAlbumSlug } from "@/lib/album-utils";
@@ -7,11 +8,12 @@ import { useHomeCharts, type HomeArtist, type HomeAlbum } from "@/hooks/useHomeC
 import ArtistScroller from "@/components/ArtistScroller";
 import ScrollAnimator from "@/components/ScrollAnimator";
 
-function ArtistCard({ artist }: { artist: HomeArtist }) {
+function ArtistCard({ artist, index = 0 }: { artist: HomeArtist; index?: number }) {
   return (
     <Link
       href={`/artist/${encodeURIComponent(artist.name)}`}
-      className="group flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)]"
+      className="group flex flex-col items-center gap-2 flex-shrink-0 min-w-[calc(20%-0.8rem)] artist-appear"
+      style={{ "--appear-delay": `${index * 80}ms` } as React.CSSProperties}
     >
       {artist.thumb ? (
         <Image src={artist.thumb} alt={artist.name} width={112} height={112} className="rounded-full object-cover w-28 h-28 group-hover:brightness-75 transition-all" />
@@ -60,7 +62,9 @@ export default function HomeCharts() {
           Trending Artists
         </h2>
         <ArtistScroller>
-          {data.artists.map((a, i) => <ArtistCard key={a.mbid || i} artist={a} />)}
+          {data.artists.map((a, i) => (
+            <ArtistCard key={a.mbid || i} artist={a} index={i} />
+          ))}
         </ArtistScroller>
       </div>
 
