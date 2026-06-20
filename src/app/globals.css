@@ -11,6 +11,14 @@
   --spotify-green: #1DB954;
 }
 
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f0f0f0;
+  --muted: #a0a0a0;
+  --border: #2a2a2a;
+  --surface: #111111;
+}
+
 @layer base {
   * {
     box-sizing: border-box;

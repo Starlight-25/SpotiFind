@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { FavouritesProvider } from "@/contexts/FavouritesContext";
 import AudioPulseButton from "@/components/AudioPulseButton";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
             {children}
           </div>
           <AudioPulseButton />
+          <ThemeToggle />
         </FavouritesProvider>
       </body>
     </html>
