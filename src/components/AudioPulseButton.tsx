@@ -83,7 +83,7 @@ export default function AudioPulseButton() {
       onClick={active ? stop : start}
       aria-label={active ? "Désactiver la sync audio" : "Activer la sync audio"}
       title={active ? "Désactiver la sync audio" : "Activer la sync audio"}
-      className={`fixed bottom-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-full border-2 shadow-md transition-all duration-300 ${
+      className={`fixed bottom-20 left-5 z-50 flex items-center justify-center w-10 h-10 rounded-full border-2 shadow-md transition-all duration-300 ${
         active
           ? "border-spotify bg-background text-spotify shadow-[0_0_12px_rgba(29,185,84,0.5)]"
           : "border-border bg-background text-muted hover:text-foreground hover:border-foreground"
