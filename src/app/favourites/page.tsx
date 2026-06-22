@@ -7,6 +7,7 @@ import { useFavourites } from "@/hooks/useFavourites";
 import EmptyState from "@/components/EmptyState";
 import ScrollAnimator from "@/components/ScrollAnimator";
 import type { FavouriteItem } from "@/lib/music-types";
+import FavouritesHeart from "@/components/FavouritesHeart";
 
 interface LiveData {
   listeners?: string;
@@ -134,7 +135,7 @@ export default function FavouritesPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-8 border-b-2 border-foreground flex-shrink-0">
+      <header className="py-8 flex-shrink-0">
         <div className="max-w-4xl mx-auto px-4 flex items-center gap-4">
           <Link href="/" className="text-muted hover:text-foreground transition-colors" aria-label="Retour">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -142,13 +143,12 @@ export default function FavouritesPage() {
             </svg>
           </Link>
           <div className="flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400" aria-hidden="true">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-            <h1 className="text-xl font-semibold text-foreground">My Favourites</h1>
+            <FavouritesHeart />
+            <h1 className="text-xl font-semibold text-foreground pop-in">My Favourites</h1>
           </div>
         </div>
       </header>
+      <div className="h-0.5 bg-foreground search-expand audio-bar" />
 
       <ScrollAnimator deps={[favourites, ready]} />
       <main className="max-w-4xl mx-auto px-4 py-8 w-full">
@@ -161,7 +161,7 @@ export default function FavouritesPage() {
           <div className="flex flex-col gap-8">
             {artists.length > 0 && (
               <section>
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border reveal-ltr">
                   Artists
                 </h2>
                 {artists.map(item => (
@@ -170,11 +170,11 @@ export default function FavouritesPage() {
               </section>
             )}
             {artists.length > 0 && tracks.length > 0 && (
-              <hr className="border-t-2 border-foreground" />
+              <div className="h-0.5 bg-foreground search-expand audio-bar" />
             )}
             {tracks.length > 0 && (
               <section>
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border">
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2 pb-2 border-b border-border reveal-ltr">
                   Tracks
                 </h2>
                 {tracks.map(item => (

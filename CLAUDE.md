@@ -17,7 +17,6 @@
 ```bash
 npm run dev      # dev server
 npm run build    # production build
-npm run test     # Jest
 npm run lint     # ESLint
 ```
 

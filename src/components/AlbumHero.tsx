@@ -34,15 +34,15 @@ export default function AlbumHero({ name, artist, images, playcount, listeners }
             alt={name}
             width={200}
             height={200}
-            className="rounded shadow-md object-cover"
+            className="rounded shadow-md object-cover photo-reveal"
           />
         ) : (
-          <div className="w-[200px] h-[200px] rounded bg-border" />
+          <div className="w-[200px] h-[200px] rounded bg-border photo-reveal" />
         )}
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 reveal-ltr">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Album</p>
-        <h1 className="text-3xl font-bold text-foreground truncate">{name}</h1>
+        <h1 className="text-3xl font-bold text-foreground">{name}</h1>
         <Link
           href={`/artist/${encodeURIComponent(artist)}`}
           className="text-lg text-muted mt-1 truncate hover:text-foreground hover:underline transition-colors"

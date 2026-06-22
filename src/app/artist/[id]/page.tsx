@@ -42,14 +42,14 @@ export default async function ArtistPage({ params }: PageProps) {
           alt={artist.name}
           width={240}
           height={240}
-          className="rounded-full object-cover w-60 h-60"
+          className="rounded-full object-cover w-60 h-60 photo-reveal"
         />
       ) : (
-        <div className="w-60 h-60 rounded-full bg-border flex items-center justify-center text-muted text-6xl font-bold uppercase">
+        <div className="w-60 h-60 rounded-full bg-border flex items-center justify-center text-muted text-6xl font-bold uppercase photo-reveal">
           {artist.name.charAt(0)}
         </div>
       )}
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-1 text-reveal">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-semibold text-foreground text-center">{artist.name}</h1>
           <HeartButton
@@ -69,7 +69,7 @@ export default async function ArtistPage({ params }: PageProps) {
       <ScrollAnimator />
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
       {topTracks.length > 0 && albums.length > 0 && (
-        <hr className="w-full border-t-2 border-foreground" />
+        <div className="w-full h-0.5 bg-foreground search-expand audio-bar" />
       )}
       <ArtistAlbums albums={albums} artistName={artist.name} />
     </main>

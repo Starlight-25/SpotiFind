@@ -31,10 +31,10 @@ export default function HomeContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-8 border-b-2 border-foreground flex-shrink-0">
+      <header className="py-8 flex-shrink-0">
         <div className="grid grid-cols-3 items-center">
           <div />
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 header-enter">
             <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
             <h1 className="text-4xl font-semibold tracking-tight text-spotify">
               SpotiFind
@@ -44,7 +44,7 @@ export default function HomeContent() {
             <Link
               href="/favourites"
               aria-label={`Mes favoris${count > 0 ? ` (${count})` : ""}`}
-              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors"
+              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors pop-in"
             >
               <svg
                 width="22"
@@ -69,23 +69,28 @@ export default function HomeContent() {
           </div>
         </div>
       </header>
+      <div className="h-0.5 bg-foreground search-expand audio-bar" />
 
       <main className="pt-10 pb-6 flex flex-col">
-        <SearchBar value={query} onSearch={handleSearch} />
+        <div className="relative z-50">
+          <SearchBar value={query} onSearch={handleSearch} />
+        </div>
 
-        {!query && <HomeCharts />}
+        <div className="relative z-0">
+          {!query && <HomeCharts />}
 
-        {query && loading && (
-          <p className="text-sm text-muted text-center mt-8">Recherche…</p>
-        )}
+          {query && loading && (
+            <p className="text-sm text-muted text-center mt-8">Recherche…</p>
+          )}
 
-        {query && error && (
-          <p className="text-sm text-red-500 text-center mt-8">{error}</p>
-        )}
+          {query && error && (
+            <p className="text-sm text-red-500 text-center mt-8">{error}</p>
+          )}
 
-        {query && results && !loading && (
-          <SearchResults results={results} />
-        )}
+          {query && results && !loading && (
+            <SearchResults results={results} />
+          )}
+        </div>
       </main>
     </div>
   );

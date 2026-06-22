@@ -9,6 +9,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **search — autocomplétion** : `SearchBar.tsx` enrichi d'un dropdown d'autocomplétion — fetch debounced 200ms vers `/api/search` ; affichage de 3 artistes (lien page artiste), 2 titres (remplit la recherche), 2 albums (lien page album) ; navigation clavier ↑↓ / Enter / Escape ; fermeture au clic extérieur ; thumbnails + badge de type (Artiste / Titre / Album) ; utilise `encodeAlbumSlug` pour les liens albums
+
+- **ui — toggle dark/light mode** : nouveau Client Component `ThemeToggle` (`src/components/ThemeToggle.tsx`) — bouton flottant positionné en bas à gauche, bascule la classe `.dark` sur `<html>` ; persistance dans `localStorage` (clé `spotifind_theme`) ; respect du `prefers-color-scheme` au premier chargement ; importé et rendu dans `src/app/layout.tsx` ; variables CSS dark ajoutées dans `src/app/globals.css` (`.dark { --background, --foreground, --muted, --border, --surface }`)
+
 - **home — albums rock en parallèle** : deuxième appel `tag.getTopAlbums` (tag=rock, limit=10) lancé en parallèle du fetch pop existant dans `src/app/api/home/route.ts` ; nouvelle fonction utilitaire `parseAlbums` mutualisée ; réponse JSON enrichie avec le champ `albumsRock: HomeAlbum[]` ; type `HomeCharts` mis à jour dans `src/hooks/useHomeCharts.ts` ; nouvelle section "Trending Albums — Rock" rendue dans `HomeCharts.tsx` avec animation `scroll-fade-in` sur chaque carte
 
 ### Changed

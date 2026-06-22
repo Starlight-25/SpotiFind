@@ -17,7 +17,7 @@ export default function ArtistAlbums({ albums, artistName }: ArtistAlbumsProps) 
   if (albums.length === 0) return null;
   return (
     <section className="w-full">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4 pb-2 border-b border-border">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4 pb-2 border-b border-border reveal-ltr">
         Albums
       </h2>
       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
