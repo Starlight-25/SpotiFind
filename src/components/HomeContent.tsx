@@ -72,21 +72,25 @@ export default function HomeContent() {
       <div className="h-0.5 bg-foreground search-expand audio-bar" />
 
       <main className="pt-10 pb-6 flex flex-col">
-        <SearchBar value={query} onSearch={handleSearch} />
+        <div className="relative z-50">
+          <SearchBar value={query} onSearch={handleSearch} />
+        </div>
 
-        {!query && <HomeCharts />}
+        <div className="relative z-0">
+          {!query && <HomeCharts />}
 
-        {query && loading && (
-          <p className="text-sm text-muted text-center mt-8">Recherche…</p>
-        )}
+          {query && loading && (
+            <p className="text-sm text-muted text-center mt-8">Recherche…</p>
+          )}
 
-        {query && error && (
-          <p className="text-sm text-red-500 text-center mt-8">{error}</p>
-        )}
+          {query && error && (
+            <p className="text-sm text-red-500 text-center mt-8">{error}</p>
+          )}
 
-        {query && results && !loading && (
-          <SearchResults results={results} />
-        )}
+          {query && results && !loading && (
+            <SearchResults results={results} />
+          )}
+        </div>
       </main>
     </div>
   );
