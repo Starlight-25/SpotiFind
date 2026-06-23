@@ -4,6 +4,7 @@ import AlbumHero from "@/components/AlbumHero";
 import TrackList from "@/components/TrackList";
 import EmptyState from "@/components/EmptyState";
 import BackButton from "@/components/BackButton";
+import HistoriqueTracker from "@/components/HistoriqueTracker";
 
 interface PageProps {
   params: { id: string };
@@ -45,6 +46,13 @@ export default async function AlbumPage({ params, searchParams }: PageProps) {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
+      <HistoriqueTracker item={{
+        id: `album:${params.id}`,
+        kind: "album",
+        label: `${album.name} — ${album.artist}`,
+        href: `/album/${params.id}`,
+        imageUrl: album.image.find(i => i.size === "large")?.["#text"],
+      }} />
       <AlbumHero name={album.name} artist={album.artist} images={album.image} playcount={album.playcount} listeners={album.listeners} />
       <TrackList
         tracks={album.tracks}
