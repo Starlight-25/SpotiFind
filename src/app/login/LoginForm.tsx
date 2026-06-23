@@ -106,9 +106,17 @@ export default function LoginForm() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm text-muted">
-              Mot de passe
-            </label>
+            <div className="flex justify-between items-center">
+              <label htmlFor="password" className="text-sm text-muted">
+                Mot de passe
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted hover:text-foreground transition-colors"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"
