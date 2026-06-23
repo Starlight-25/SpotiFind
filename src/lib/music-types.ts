@@ -79,3 +79,14 @@ export interface FavouriteItem {
   href: string;
   addedAt: number;
 }
+
+export type HistoriqueKind = "artist" | "album" | "search";
+
+export interface HistoriqueItem {
+  id: string;
+  kind: HistoriqueKind;
+  label: string;
+  href: string;
+  imageUrl?: string;
+  visitedAt: number;
+}
