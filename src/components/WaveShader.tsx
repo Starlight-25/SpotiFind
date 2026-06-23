@@ -71,7 +71,9 @@ void main() {
     result += vec4(wc * alpha * 1.2, alpha);
   }
 
-  gl_FragColor = clamp(result, 0.0, 1.0);
+  // Soft fade at canvas edges to avoid hard clip
+  float edgeFade = smoothstep(0.0, 0.12, uv.x) * smoothstep(1.0, 0.88, uv.x);
+  gl_FragColor = clamp(result, 0.0, 1.0) * edgeFade;
 }
 `;
 
@@ -207,7 +209,7 @@ export default function WaveShader({ side }: Props) {
     <canvas
       ref={canvasRef}
       className={`fixed top-0 ${
-        side === "left" ? "left-0" : "right-0"
+        side === "left" ? "wave-canvas-left" : "wave-canvas-right"
       } h-screen w-[100px] hidden lg:block pointer-events-none z-10`}
     />
   );
