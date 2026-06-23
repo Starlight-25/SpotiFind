@@ -3,7 +3,7 @@
 | Champ         | Valeur                     |
 |---------------|----------------------------|
 | Module        | wave-shader                |
-| Version       | 0.1.0                      |
+| Version       | 0.2.0                      |
 | Date          | 2026-06-23                 |
 | Source        | Implémentation feat/wave-shader-audio |
 
@@ -94,20 +94,51 @@ bands[i] = min( mean(fftData[startBin..endBin]) / 200, 1 )
 ```
 Les valeurs FFT sont en `Uint8` (0–255) ; la division par 200 calibre l'amplitude visuelle.
 
+### Paramètres idle — mode "vague de mer"
+
+En mode idle (`u_active = 0`), chaque onde utilise des paramètres propres pour simuler un mouvement de houle organique :
+
+| Paramètre | Formule | Description |
+|-----------|---------|-------------|
+| `idleAmp` | `0.01 + fi * 0.07` | Amplitude croissante par onde — ondes plus larges vers le haut |
+| `idleSfreq` | `1.0 + fi * 0.35` | Fréquence spatiale basse — longues vagues lentes |
+| `idleSpeed` | `0.22 + fi * 0.06` | Vitesse de défilement lente — tempo de houle |
+| `idlePhase` | `fi * 1.1` | Décalage de phase entre ondes — mouvement non synchronisé |
+
 ### Formule de rendu par onde
 
 ```glsl
-float waveX  = center + amp * sin(y * sfreq * 6.2832 + u_time * speed + phase);
-float dist   = abs(x - waveX);
-float thick  = 0.015;
-float alpha  = smoothstep(thick, thick * 0.05, dist) * 0.88;
+float baseWave = amp * sin(y * sfreq * 6.2832 + u_time * speed + phase);
+// Harmonique secondaire au ratio d'or — apériodique, ne se répète jamais exactement
+float harmonic = amp * 0.45 * sin(y * sfreq * 1.618 * 6.2832 - u_time * speed * 0.75 + phase * 0.8);
+// Respiration d'amplitude — chaque onde pulse à son propre rythme
+float breathe  = 1.0 + 0.3 * sin(u_time * 0.4 + fi * 1.3);
+float waveX    = center + mix(baseWave * breathe + harmonic, baseWave, u_active);
+float dist     = abs(x - waveX);
+
+// Ligne centrale nette
+float thick = 0.016;
+float core  = smoothstep(thick, 0.001, dist);
+// Halo extérieur prononcé
+float glow  = smoothstep(0.18, 0.001, dist) * 0.45;
+float alpha = clamp(core * 0.95 + glow * (1.0 - core * 0.95), 0.0, 1.0);
 ```
 
-En mode idle (`u_active = 0`), `amp` utilise une valeur minimale (`0.05 + i * 0.005`) pour maintenir une animation continue même sans audio.
+En mode actif (`u_active = 1`), les paramètres idle sont remplacés par `amp = 0.06 + u_bands[i] * 0.38`, `sfreq = 4.0`, `speed = 0.8`, et l'harmonique/respiration sont éteints (`mix(..., u_active)`).
 
 ## Positionnement CSS
 
-Les deux canvas sont `fixed top-0 h-screen w-[100px]`, visibles uniquement à partir de `lg` (`hidden lg:block`), `pointer-events-none`, `z-10`.
+Les deux canvas sont `fixed top-0 h-screen wave-canvas`, visibles uniquement à partir de `lg` (`hidden lg:block`), `pointer-events-none`, `z-10`.
+
+La classe `.wave-canvas` est définie dans `globals.css` sous `@layer components` :
+
+```css
+.wave-canvas {
+  width: max(60px, calc((100vw - 1200px) / 2));
+}
+```
+
+Cette formule adapte la largeur au gutter disponible autour du `container-app` (max-width 1200px), avec un minimum de 60px. En dessous de 1260px de viewport, les canvas restent à 60px. La largeur effective est résolue au runtime via `canvas.offsetWidth` dans le composant WebGL.
 
 ## Tests prévus
 

@@ -17,6 +17,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 - **wave-shader — visualisation audio système WebGL** : nouveau module `wave-shader` — `AudioAnalyserContext` (React Context Provider centralisant la capture audio via `getDisplayMedia`, `AnalyserNode` partagé `fftSize=256`) ; hook `useAudioAnalyser` (re-export) ; `WaveShader` (canvas WebGL `fixed` bords gauche/droite, 6 ondes sinusoïdales GLSL colorées violet→indigo→blue→cyan→emerald→spotify-green réactives à 6 bandes fréquentielles FFT, mode idle animé en l'absence d'audio, symétrie miroir via uniform `u_flip`, visible `lg+`) ; `AudioPulseButton` refactorisé pour déléguer stream/analyser à `AudioAnalyserContext` (suppression de la gestion locale du stream) ; `layout.tsx` enrichi avec `AudioAnalyserProvider` et deux `<WaveShader side="left|right" />`
 
+- **wave-shader — amélioration idle "vague de mer"** : refonte du mode idle du fragment shader GLSL — amplitudes variables par onde (`idleAmp = 0.01 + fi * 0.07`) pour une différenciation visuelle accrue ; fréquence spatiale basse (`1.0 + fi * 0.35`) et vitesse lente (`0.22 + fi * 0.06`) pour un mouvement de houle organique ; phases décalées par onde (`fi * 1.1`) ; harmonique secondaire au ratio d'or (×1.618) pour un mouvement apériodique ; respiration d'amplitude (`1.0 + 0.3 * sin(u_time * 0.4 + fi * 1.3)`) ; canvas adaptatif via classe CSS `.wave-canvas { width: max(60px, calc((100vw - 1200px) / 2)) }` au lieu d'une largeur fixe `w-[100px]`
+
 ### Changed
 
 - **search — augmentation des limites Last.fm** : `track.search` et `album.search` passent de 5 à 20 résultats par requête (`limit=20` dans `lastfmSearch`) ; `artist.search` conserve `limit=5`
