@@ -17,14 +17,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "r2.theaudiodb.com",
       },
-      {
-        protocol: "https",
-        hostname: "**.scdn.co",
-      },
-      {
-        protocol: "https",
-        hostname: "**.spotifycdn.com",
-      },
+
     ],
   },
 };
