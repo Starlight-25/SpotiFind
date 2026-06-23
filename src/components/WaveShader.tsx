@@ -45,9 +45,9 @@ void main() {
     // Base idle oscillation identical for all waves
     // Each wave adds its own frequency band energy on top — fully independent
     float amp = 0.06 + u_bands[i] * 0.38 * u_active;
-    float speed  = 0.7 + fi * 0.13;
-    float phase  = fi * 1.047;
-    float sfreq  = 3.5 + fi * 0.45;
+    float speed  = 0.8;
+    float phase  = 0.0;
+    float sfreq  = 4.0;
     float waveX  = center + amp * sin(y * sfreq * 6.2832 + u_time * speed + phase);
     float dist   = abs(x - waveX);
 
