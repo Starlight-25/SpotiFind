@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { SearchResults } from "@/lib/music-types";
+import { useHistorique } from "@/hooks/useHistorique";
 
 export function useSearch(query: string, debounceMs = 400) {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { add } = useHistorique();
 
   useEffect(() => {
     if (!query) {
@@ -38,6 +40,13 @@ export function useSearch(query: string, debounceMs = 400) {
           tracks: data.tracks ?? [],
           artists: data.artists ?? [],
           albums: data.albums ?? [],
+        });
+
+        add({
+          id: `search:${query}`,
+          kind: "search",
+          label: query,
+          href: "/",
         });
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
