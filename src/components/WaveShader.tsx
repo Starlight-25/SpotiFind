@@ -40,19 +40,26 @@ void main() {
 
   for (int i = 0; i < 6; i++) {
     float fi     = float(i);
-    float center = (fi + 0.5) / 6.0;
-    float idle   = 0.05 + fi * 0.005;
-    float active = u_bands[i] * 0.32;
-    float amp    = mix(idle, active, u_active);
+    // All waves at exactly the same horizontal center
+    float center = 0.5;
+    // Base idle oscillation identical for all waves
+    // Each wave adds its own frequency band energy on top — fully independent
+    float amp = 0.06 + u_bands[i] * 0.38 * u_active;
     float speed  = 0.7 + fi * 0.13;
     float phase  = fi * 1.047;
     float sfreq  = 3.5 + fi * 0.45;
     float waveX  = center + amp * sin(y * sfreq * 6.2832 + u_time * speed + phase);
     float dist   = abs(x - waveX);
-    float thick  = 0.015;
-    float alpha  = smoothstep(thick, thick * 0.05, dist) * 0.88;
-    vec3  wc     = getColor(i);
-    result      += vec4(wc * alpha, alpha);
+
+    // Sharp core line
+    float thick = 0.016;
+    float core  = smoothstep(thick, 0.001, dist);
+    // Pronounced outer glow
+    float glow  = smoothstep(0.18, 0.001, dist) * 0.45;
+    float alpha = clamp(core * 0.95 + glow * (1.0 - core * 0.95), 0.0, 1.0);
+
+    vec3  wc    = getColor(i);
+    result += vec4(wc * alpha * 1.2, alpha);
   }
 
   gl_FragColor = clamp(result, 0.0, 1.0);
