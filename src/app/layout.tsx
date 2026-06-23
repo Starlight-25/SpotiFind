@@ -6,6 +6,7 @@ import { AudioAnalyserProvider } from "@/contexts/AudioAnalyserContext";
 import AudioPulseButton from "@/components/AudioPulseButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import WaveShader from "@/components/WaveShader";
+import AuthHeader from "@/components/AuthHeader";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,6 +37,7 @@ export default function RootLayout({
             <div className="container-app">
               {children}
             </div>
+            <AuthHeader />
             <AudioPulseButton />
             <ThemeToggle />
             <WaveShader side="left" />

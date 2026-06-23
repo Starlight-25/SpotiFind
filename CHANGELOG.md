@@ -9,6 +9,16 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **auth — page signup** : `src/app/signup/page.tsx` — Client Component, formulaire création de compte email + mot de passe (confirmation de mot de passe avec validation côté client, minLength=6) ; appelle `supabase.auth.signUp` via `createClient()` ; redirige vers `/` après inscription réussie ; lien vers `/login`
+
+- **auth — page login + import favoris** : `src/app/login/page.tsx` (Server Component wrapper `<Suspense>`) + `src/app/login/LoginForm.tsx` (Client Component) — formulaire connexion email/password via `supabase.auth.signInWithPassword` ; détection des favoris localStorage post-connexion et affichage de `ImportFavouritesModal` si présents ; `handleImportDecision` effectue un upsert Supabase `favourites` (`onConflict: user_id,kind,name,artist`) si l'utilisateur accepte, puis nettoie localStorage ; paramètre `?redirect=<pathname>` supporté
+
+- **favourites — modal import localStorage → Supabase** : nouveau Client Component `ImportFavouritesModal` (`src/components/ImportFavouritesModal.tsx`) — modal post-connexion affichant le nombre de favoris localStorage détectés ; props `count: number` et `onDecision: (importThem: boolean) => void` ; délègue la décision au parent sans piloter la logique d'import
+
+- **auth — middleware Supabase (partiel)** : `src/middleware.ts` — protège la route `/favourites` en redirigeant les utilisateurs non authentifiés vers `/login?redirect=/favourites` ; utilise `@supabase/ssr` `createServerClient` pour lire la session côté serveur via cookies ; matcher limité à `/favourites/:path*`
+
+- **auth — client Supabase browser** : `src/lib/supabase.ts` — factory `createClient()` via `createBrowserClient` (`@supabase/ssr`) pour les composants Client (login, signup, opérations futures sur la table `favourites`)
+
 - **search — autocomplétion** : `SearchBar.tsx` enrichi d'un dropdown d'autocomplétion — fetch debounced 200ms vers `/api/search` ; affichage de 3 artistes (lien page artiste), 2 titres (remplit la recherche), 2 albums (lien page album) ; navigation clavier ↑↓ / Enter / Escape ; fermeture au clic extérieur ; thumbnails + badge de type (Artiste / Titre / Album) ; utilise `encodeAlbumSlug` pour les liens albums
 
 - **ui — toggle dark/light mode** : nouveau Client Component `ThemeToggle` (`src/components/ThemeToggle.tsx`) — bouton flottant positionné en bas à gauche, bascule la classe `.dark` sur `<html>` ; persistance dans `localStorage` (clé `spotifind_theme`) ; respect du `prefers-color-scheme` au premier chargement ; importé et rendu dans `src/app/layout.tsx` ; variables CSS dark ajoutées dans `src/app/globals.css` (`.dark { --background, --foreground, --muted, --border, --surface }`)
@@ -50,7 +60,13 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 - **artist-page — enrichissement colonne auditeurs** : ajout du champ `listeners: string | null` dans l'interface `ArtistTopTrack` (`music-types.ts`) ; `fetchLastfmTopTracks` mappe désormais `t.listeners` depuis la réponse `artist.getTopTracks` Last.fm (Spotify conserve `listeners: null`) ; composant `ArtistTopTracks` affiche une colonne "X auditeurs" (format `fr-FR` via `toLocaleString`) visible à partir de `md` ; page `/artist/[id]` élargie de `max-w-2xl` à `max-w-5xl` ; grille `ArtistAlbums` passée de `grid-cols-2 sm:grid-cols-3` à `grid-cols-3 sm:grid-cols-4 lg:grid-cols-5` ; test `artist-service.test.ts` mis à jour (`listeners: null` dans l'objet attendu)
 
+- **auth — flow mot de passe oublié / réinitialisation** : route handler PKCE `src/app/auth/callback/route.ts` — échange le `code` Supabase côté serveur via `exchangeCodeForSession` et redirige vers `?next=` (utilisé comme `redirectTo` pour le reset de mot de passe) ; page `src/app/forgot-password/page.tsx` — formulaire email vers `supabase.auth.resetPasswordForEmail` avec `redirectTo` pointant vers `/auth/callback?next=/reset-password`, affiche un message de confirmation après envoi ; page `src/app/reset-password/page.tsx` + `ResetPasswordForm.tsx` — vérifie la session via `getUser()` avant d'afficher le formulaire, appelle `supabase.auth.updateUser({ password })` à la soumission, redirige vers `/` après succès ; lien "Mot de passe oublié ?" ajouté dans `LoginForm.tsx` pointant vers `/forgot-password`
+
 ### Fixed
+
+- **favourites — HeartButton redirection non authentifié** : si `isAuthenticated === false` (exposé par `FavouritesContext` réécrit), le click court-circuite le `toggle` et appelle `router.push("/login")` — évite une modification silencieuse des favoris pour un utilisateur non connecté
+
+- **favourites — lien cœur header HomeContent** : `src/components/HomeContent.tsx` — le `<Link>` du header pointe désormais vers `/login?redirect=/favourites` si `isAuthenticated === false` (lu depuis `useFavourites()`), et vers `/favourites` si authentifié ; complète la protection middleware (serveur) par une redirection client-side dès le clic
 
 ### Removed
 

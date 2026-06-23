@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useFavourites } from "@/hooks/useFavourites";
 import type { FavouriteItem } from "@/lib/music-types";
 
@@ -18,13 +19,20 @@ const PARTICLES = [
 ];
 
 export default function HeartButton(props: HeartButtonProps) {
-  const { isFavourite, toggle, ready } = useFavourites();
+  const { isFavourite, toggle, ready, isAuthenticated } = useFavourites();
   const active = ready && isFavourite(props.id);
   const [bursting, setBursting] = useState(false);
+  const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+
     const willBeActive = !active;
     toggle({ ...props, addedAt: Date.now() });
     if (willBeActive) {
