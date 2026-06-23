@@ -14,7 +14,7 @@ const SESSION_KEY = "spotifind_query";
 export default function HomeContent() {
   const [query, setQuery] = useState("");
   const { results, loading, error } = useSearch(query.trim());
-  const { favourites, ready } = useFavourites();
+  const { favourites, ready, isAuthenticated } = useFavourites();
   const count = ready ? favourites.length : 0;
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function HomeContent() {
           </div>
           <div className="flex justify-end pr-4">
             <Link
-              href="/favourites"
+              href={isAuthenticated ? "/favourites" : "/login?redirect=/favourites"}
               aria-label={`Mes favoris${count > 0 ? ` (${count})` : ""}`}
               className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors pop-in"
             >
