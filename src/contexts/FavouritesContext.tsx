@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
   type ReactNode,
 } from "react";
 import type { User } from "@supabase/supabase-js";
@@ -53,7 +54,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   async function loadFavourites(userId: string) {
     const { data } = await supabase
@@ -93,7 +94,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
   );
 
   const toggle = useCallback(
-    (item: FavouriteItem) => {
+    async (item: FavouriteItem) => {
       if (!user) return;
       const already = favourites.some((f) => f.id === item.id);
 
@@ -104,15 +105,16 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
       );
 
       if (already) {
-        supabase
+        const { error } = await supabase
           .from("favourites")
           .delete()
           .eq("user_id", user.id)
           .eq("kind", item.kind)
           .eq("name", item.name)
           .eq("artist", item.artist ?? "");
+        if (error) console.error("[favourites] delete error:", error);
       } else {
-        supabase.from("favourites").insert({
+        const { error } = await supabase.from("favourites").insert({
           user_id: user.id,
           kind: item.kind,
           name: item.name,
@@ -120,26 +122,28 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
           image_url: item.imageUrl ?? null,
           href: item.href,
         });
+        if (error) console.error("[favourites] insert error:", error);
       }
     },
     [user, favourites, supabase]
   );
 
   const remove = useCallback(
-    (id: string) => {
+    async (id: string) => {
       if (!user) return;
       const item = favourites.find((f) => f.id === id);
       if (!item) return;
 
       setFavourites((prev) => prev.filter((f) => f.id !== id));
 
-      supabase
+      const { error } = await supabase
         .from("favourites")
         .delete()
         .eq("user_id", user.id)
         .eq("kind", item.kind)
         .eq("name", item.name)
         .eq("artist", item.artist ?? "");
+      if (error) console.error("[favourites] remove error:", error);
     },
     [user, favourites, supabase]
   );

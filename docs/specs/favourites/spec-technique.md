@@ -3,8 +3,8 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.3.0               |
-| Date    | 2026-06-18          |
+| Version | 0.6.1               |
+| Date    | 2026-06-23          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
 
@@ -14,7 +14,8 @@
 
 - **Langage :** TypeScript 5 (strict mode)
 - **Framework :** Next.js 14 App Router — composants Client (`"use client"`)
-- **Persistance :** `localStorage` navigateur — pas de BDD, pas de backend
+- **Persistance :** `localStorage` navigateur (phase actuelle) → migration Supabase en cours (voir section Auth)
+- **Auth :** Supabase Auth via `@supabase/ssr` — sessions cookie HTTP-only, middleware Next.js
 - **State :** React `useState` / `useEffect` / `useCallback` — pas de store global
 
 ---
@@ -105,6 +106,7 @@ Client Component. Affiche un bouton cœur SVG 15×15 toggleable.
 - Affichage conditionnel au flag `ready` — aucun état actif affiché avant hydratation (`ready === false`).
 - Couleur active : `text-red-400` (cœur plein rouge). Couleur inactive : `text-muted` avec hover `text-foreground`.
 - SVG inliné — pas de dépendance à une lib d'icônes.
+- **Redirection si non authentifié (ajout session 2026-06-23) :** si `useFavourites()` expose `isAuthenticated === false`, le handler de click court-circuite le `toggle` et appelle `router.push("/login")` via `next/navigation`. L'utilisateur est redirigé vers la page de connexion sans modification des favoris. `isAuthenticated` est fourni par `FavouritesContext` (réécrit pour intégrer la session Supabase).
 
 ---
 
@@ -201,7 +203,172 @@ L'`IntersectionObserver` inline précédemment écrit directement dans `useEffec
 
 ---
 
-## Points non implémentés (périmètre session)
+---
+
+## Auth et protection de route (session 2026-06-23)
+
+### Middleware Next.js (`src/middleware.ts`)
+
+Intercepte toutes les requêtes vers `/favourites` et sous-routes. Si l'utilisateur n'est pas authentifié, redirige vers `/login?redirect=/favourites`.
+
+**Comportement :**
+- Crée un client Supabase server-side via `createServerClient` (`@supabase/ssr`) à chaque requête.
+- Lit et propage les cookies de session via `getAll` / `setAll` sur `request.cookies` et `supabaseResponse.cookies`.
+- Appelle `supabase.auth.getUser()` — vérification serveur (pas de JWT local uniquement).
+- Si `user === null` et pathname commence par `/favourites` → redirect `NextResponse.redirect` vers `/login?redirect=<pathname>`.
+- Retourne `supabaseResponse` dans tous les cas pour propager les cookies de session mis à jour.
+
+**Matcher :** `["/favourites/:path*"]`
+
+**Variables d'environnement requises :**
+
+| Variable | Rôle |
+|----------|------|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clé publique anon Supabase |
+
+### Client Supabase browser (`src/lib/supabase.ts`)
+
+Exporte `createClient()` — factory retournant un `SupabaseClient` browser via `createBrowserClient` (`@supabase/ssr`). Utilisé par les composants Client pour les opérations auth (login, signup, logout) et les requêtes futures à la table `favourites`.
+
+```ts
+export function createClient(): SupabaseClient
+```
+
+---
+
+## Composant `ImportFavouritesModal` (`src/components/ImportFavouritesModal.tsx`)
+
+Client Component (`"use client"`). Affiche une modal de décision post-connexion demandant à l'utilisateur s'il souhaite importer ses favoris `localStorage` dans son compte Supabase.
+
+**Props :**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `count` | `number` | Nombre de favoris localStorage détectés — affiché dans le message de la modal |
+| `onDecision` | `(importThem: boolean) => void` | Callback appelé avec `true` (importer) ou `false` (ignorer) quand l'utilisateur fait son choix |
+
+**Comportement :**
+- Affiché après une connexion réussie si des favoris localStorage existent (`count > 0`).
+- Présente deux actions : importer les favoris dans le compte Supabase, ou les ignorer.
+- Ne pilote pas la logique d'import elle-même — délègue la décision au parent via `onDecision`.
+
+---
+
+## Pages auth (`/login` et `/signup`)
+
+### Page `/login` (`src/app/login/page.tsx` + `src/app/login/LoginForm.tsx`)
+
+- `login/page.tsx` : Server Component wrapper — encapsule `LoginForm` dans un `<Suspense>` (requis pour `useSearchParams` dans un Client Component sous Next.js App Router).
+- `LoginForm.tsx` : Client Component (`"use client"`). Formulaire email + mot de passe.
+
+**Flux de connexion :**
+1. `supabase.auth.signInWithPassword({ email, password })` via `createClient()`.
+2. Si la connexion réussit, lit `localStorage["spotifind_favourites"]`.
+3. Si des favoris localStorage existent (longueur > 0), monte `ImportFavouritesModal` (count = nombre d'items) et suspend la navigation.
+4. `handleImportDecision(importThem: boolean)` :
+   - Si `true` : appelle `supabase.from("favourites").upsert(...)` avec `onConflict: "user_id,kind,name,artist"` pour éviter les doublons. Colonnes écrites : `user_id`, `kind`, `name`, `artist`, `image_url`, `href`.
+   - Dans les deux cas : `localStorage.removeItem(STORAGE_KEY)` puis `router.push(redirect ?? "/")`.
+5. Si aucun favori localStorage → `router.push(redirect ?? "/")` immédiatement.
+
+**Paramètre URL :** `?redirect=<pathname>` — lu via `useSearchParams()`, utilisé pour rediriger après connexion.
+
+### Page `/signup` (`src/app/signup/page.tsx`)
+
+Client Component (`"use client"`). Formulaire de création de compte email + mot de passe.
+
+**Champs :** email, mot de passe (minLength=6), confirmation mot de passe (minLength=6).
+
+**Validation côté client :** comparaison `password !== confirm` avant appel Supabase. Si non correspondent → affiche `"Les mots de passe ne correspondent pas."` sans appel réseau.
+
+**Flux :**
+1. `supabase.auth.signUp({ email, password })` via `createClient()`.
+2. Si erreur → affiche `error.message` dans un `<p className="text-red-400">`.
+3. Si succès → `router.push("/")`.
+
+**Lien de navigation :** lien vers `/login` ("Déjà un compte ?") via `<Link>`.
+
+---
+
+## Table Supabase `favourites` (schéma inféré)
+
+La logique d'upsert dans `LoginForm.tsx` révèle les colonnes utilisées :
+
+| Colonne | Type inféré | Description |
+|---------|-------------|-------------|
+| `user_id` | `uuid` (FK → auth.users) | Propriétaire du favori |
+| `kind` | `text` | Type : `"track"`, `"album"`, `"artist"` |
+| `name` | `text` | Nom du titre / album / artiste |
+| `artist` | `text` | Artiste (chaîne vide si absent) |
+| `image_url` | `text` (nullable) | URL de la pochette |
+| `href` | `text` | URL de destination dans l'app |
+
+Contrainte unique inférée : `(user_id, kind, name, artist)` — utilisée comme clé de déduplication dans l'upsert.
+
+> Le DDL exact (migrations Supabase) n'est pas versioné dans ce dépôt. Schéma à vérifier dans la console Supabase du projet.
+
+---
+
+## Flow mot de passe oublié / réinitialisation (session 2026-06-23)
+
+Implémenté sur la branche `feat/auth-supabase-favourites`. Repose sur le PKCE flow Supabase et une route handler Next.js dédiée.
+
+### Route handler PKCE (`src/app/auth/callback/route.ts`)
+
+Route `GET /auth/callback` côté serveur. Échange le `code` PKCE reçu en query param contre une session Supabase via `supabase.auth.exchangeCodeForSession(code)`. Redirige ensuite vers le paramètre `?next=` (ou `/` par défaut).
+
+Utilisé comme `redirectTo` pour le reset de mot de passe : Supabase envoie un email avec un lien pointant vers `/auth/callback?next=/reset-password`, ce qui établit la session avant de rediriger l'utilisateur vers le formulaire de nouveau mot de passe.
+
+### Page "Mot de passe oublié" (`src/app/forgot-password/page.tsx`)
+
+Client Component (`"use client"`). Formulaire à un champ (email).
+
+**Flux :**
+1. Appel `supabase.auth.resetPasswordForEmail(email, { redirectTo: <origin>/auth/callback?next=/reset-password })`.
+2. Affiche un message de confirmation après envoi ("Vérifiez votre boîte mail").
+3. Pas de redirect — l'utilisateur reste sur la page de confirmation.
+
+### Page "Réinitialisation du mot de passe" (`src/app/reset-password/page.tsx` + `src/app/reset-password/ResetPasswordForm.tsx`)
+
+- `reset-password/page.tsx` : Server Component wrapper — encapsule `ResetPasswordForm` dans un `<Suspense>`.
+- `ResetPasswordForm.tsx` : Client Component (`"use client"`).
+
+**Flux :**
+1. Vérifie la session via `supabase.auth.getUser()` — la session a été établie par `/auth/callback`.
+2. Si pas de session (accès direct sans token valide) → affiche un message d'erreur.
+3. Sinon affiche le formulaire : champ "nouveau mot de passe".
+4. Appelle `supabase.auth.updateUser({ password })` à la soumission.
+5. Redirige vers `/` après mise à jour réussie.
+
+### Lien depuis LoginForm
+
+`src/app/login/LoginForm.tsx` — ajout d'un lien "Mot de passe oublié ?" pointant vers `/forgot-password`, positionné sous le formulaire.
+
+---
+
+## Lien cœur dans le header de `HomeContent` (`src/components/HomeContent.tsx`)
+
+Le header de la homepage expose un lien cœur (`<Link>`) vers la page des favoris, positionné en haut à droite.
+
+**Comportement de redirection conditionnel (session 2026-06-23) :**
+
+- `isAuthenticated` est lu depuis `useFavourites()` (exposé par `FavouritesContext`).
+- Si `isAuthenticated === true` : `href="/favourites"` — navigation directe vers la page des favoris.
+- Si `isAuthenticated === false` : `href="/login?redirect=/favourites"` — redirige vers la page de connexion avec paramètre `?redirect=` pour retour post-login automatique.
+
+Ce comportement complète le middleware Next.js (protection serveur) en ajoutant une redirection côté client dès le clic sur l'icône, avant même que la requête vers `/favourites` ne soit émise.
+
+**Badge compteur :**
+- `count` est calculé depuis `favourites.length` — masqué si `ready === false` (avant hydratation) pour éviter un flash.
+- Le badge rouge (chiffre) est visible uniquement si `count > 0`.
+- Le SVG cœur est plein (`fill="currentColor"`) si `count > 0`, vide (`fill="none"`) sinon.
+
+---
+
+## Points non implémentés (périmètre branche)
 
 - Support type `"album"` et `"artist"` dans `HeartButton` (seul `"track"` est intégré pour l'instant)
-- La classe `scroll-fade-in` n'est pas encore appliquée aux cards de la page `/favourites` elle-même (les items de la liste ne sont pas encore animés au scroll depuis cette page)
+- La classe `scroll-fade-in` n'est pas encore appliquée aux cards de la page `/favourites` elle-même
+- `FavouritesContext` non encore migré de localStorage vers Supabase
+- `AuthHeader` non encore créé
+- `HeartButton` modifié pour redirect `/login` si non connecté (implémenté, session 2026-06-23)
