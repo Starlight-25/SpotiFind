@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { FavouritesProvider } from "@/contexts/FavouritesContext";
+import { AudioAnalyserProvider } from "@/contexts/AudioAnalyserContext";
 import AudioPulseButton from "@/components/AudioPulseButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import WaveShader from "@/components/WaveShader";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,13 +31,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <FavouritesProvider>
-          <div className="container-app">
-            {children}
-          </div>
-          <AudioPulseButton />
-          <ThemeToggle />
-        </FavouritesProvider>
+        <AudioAnalyserProvider>
+          <FavouritesProvider>
+            <div className="container-app">
+              {children}
+            </div>
+            <AudioPulseButton />
+            <ThemeToggle />
+            <WaveShader side="left" />
+            <WaveShader side="right" />
+          </FavouritesProvider>
+        </AudioAnalyserProvider>
       </body>
     </html>
   );

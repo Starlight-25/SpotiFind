@@ -175,6 +175,13 @@
 }
 
 @layer components {
+  .wave-canvas-left {
+    left: max(0px, calc((100vw - 1200px) / 4 - 50px));
+  }
+  .wave-canvas-right {
+    right: max(0px, calc((100vw - 1200px) / 4 - 50px));
+  }
+
   .container-app {
     width: 100%;
     max-width: 1200px;
