@@ -40,15 +40,24 @@ void main() {
 
   for (int i = 0; i < 6; i++) {
     float fi     = float(i);
-    // All waves at exactly the same horizontal center
     float center = 0.5;
-    // Base idle oscillation identical for all waves
-    // Each wave adds its own frequency band energy on top — fully independent
-    float amp = 0.06 + u_bands[i] * 0.38 * u_active;
-    float speed  = 0.8;
-    float phase  = 0.0;
-    float sfreq  = 4.0;
-    float waveX  = center + amp * sin(y * sfreq * 6.2832 + u_time * speed + phase);
+    // Sea wave params (idle) — long rolling waves, slow, out of phase
+    float idleAmp   = 0.01 + fi * 0.07;
+    float idleSfreq = 1.0 + fi * 0.35;
+    float idleSpeed = 0.22 + fi * 0.06;
+    float idlePhase = fi * 1.1;
+
+    float amp   = mix(idleAmp, 0.06, u_active) + u_bands[i] * 0.38 * u_active;
+    float sfreq = mix(idleSfreq, 4.0, u_active);
+    float speed = mix(idleSpeed, 0.8, u_active);
+    float phase = idlePhase * (1.0 - u_active);
+
+    float baseWave = amp * sin(y * sfreq * 6.2832 + u_time * speed + phase);
+    // Secondary harmonic at golden ratio — aperiodic, never repeats exactly
+    float harmonic = amp * 0.45 * sin(y * sfreq * 1.618 * 6.2832 - u_time * speed * 0.75 + phase * 0.8);
+    // Amplitude breathing — each wave pulses at its own rhythm
+    float breathe  = 1.0 + 0.3 * sin(u_time * 0.4 + fi * 1.3);
+    float waveX = center + mix(baseWave * breathe + harmonic, baseWave, u_active);
     float dist   = abs(x - waveX);
 
     // Sharp core line
