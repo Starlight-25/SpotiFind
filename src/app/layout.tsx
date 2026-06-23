@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { FavouritesProvider } from "@/contexts/FavouritesContext";
+import { HistoriqueProvider } from "@/contexts/HistoriqueContext";
 import { AudioAnalyserProvider } from "@/contexts/AudioAnalyserContext";
 import AudioPulseButton from "@/components/AudioPulseButton";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AudioAnalyserProvider>
+          <HistoriqueProvider>
           <FavouritesProvider>
             <div className="container-app">
               {children}
@@ -43,6 +45,7 @@ export default function RootLayout({
             <WaveShader side="left" />
             <WaveShader side="right" />
           </FavouritesProvider>
+          </HistoriqueProvider>
         </AudioAnalyserProvider>
       </body>
     </html>
