@@ -7,6 +7,7 @@ import HeartButton from "@/components/HeartButton";
 import BackButton from "@/components/BackButton";
 import ScrollAnimator from "@/components/ScrollAnimator";
 import { buildFavouriteId } from "@/lib/favourite-utils";
+import HistoriqueTracker from "@/components/HistoriqueTracker";
 
 interface PageProps {
   params: { id: string };
@@ -67,6 +68,13 @@ export default async function ArtistPage({ params }: PageProps) {
         )}
       </div>
       <ScrollAnimator />
+      <HistoriqueTracker item={{
+        id: `artist:${artist.name}`,
+        kind: "artist",
+        label: artist.name,
+        href: `/artist/${encodeURIComponent(artist.name)}`,
+        imageUrl: artist.thumb ?? undefined,
+      }} />
       <ArtistTopTracks tracks={topTracks} artistName={artist.name} />
       {topTracks.length > 0 && albums.length > 0 && (
         <div className="w-full h-0.5 bg-foreground search-expand audio-bar" />

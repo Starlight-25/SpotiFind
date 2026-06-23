@@ -8,6 +8,7 @@ import SearchResults from "@/components/SearchResults";
 import HomeCharts from "@/components/HomeCharts";
 import { useSearch } from "@/hooks/useSearch";
 import { useFavourites } from "@/hooks/useFavourites";
+import { useHistorique } from "@/hooks/useHistorique";
 
 const SESSION_KEY = "spotifind_query";
 
@@ -15,6 +16,7 @@ export default function HomeContent() {
   const [query, setQuery] = useState("");
   const { results, loading, error } = useSearch(query.trim());
   const { favourites, ready, isAuthenticated } = useFavourites();
+  const { historique } = useHistorique();
   const count = ready ? favourites.length : 0;
 
   useEffect(() => {
@@ -33,7 +35,23 @@ export default function HomeContent() {
     <div className="flex flex-col min-h-screen">
       <header className="py-8 flex-shrink-0">
         <div className="grid grid-cols-3 items-center">
-          <div />
+          <div className="flex justify-start pl-4">
+            <Link
+              href="/historique"
+              aria-label={`Historique${historique.length > 0 ? ` (${historique.length})` : ""}`}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors pop-in"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              {historique.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-muted text-background text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 leading-none">
+                  {historique.length}
+                </span>
+              )}
+            </Link>
+          </div>
           <div className="flex items-center justify-center gap-3 header-enter">
             <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
             <h1 className="text-4xl font-semibold tracking-tight text-spotify">
