@@ -51,6 +51,16 @@ export default function HomeContent() {
                 </span>
               )}
             </Link>
+            <Link
+              href="/explore"
+              aria-label="Explorer par genre"
+              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors pop-in"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+              </svg>
+            </Link>
           </div>
           <div className="flex items-center justify-center gap-3 header-enter">
             <Image src="/logo.png" alt="SpotiFind logo" width={40} height={40} />
