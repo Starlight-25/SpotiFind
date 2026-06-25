@@ -25,12 +25,18 @@ export default function GenreRow({ genre }: Props) {
   }, [genre]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold text-muted uppercase tracking-widest px-4">{genre}</h2>
-      <div className="flex gap-2 px-4">
+    <div className="flex-shrink-0">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+        Trending Albums — {genre}
+      </h2>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-24 aspect-square bg-border rounded-lg animate-pulse" />
+              <div key={i} className="flex flex-col gap-2">
+                <div className="w-full aspect-square bg-border rounded-xl animate-pulse" />
+                <div className="h-3 bg-border rounded animate-pulse w-3/4" />
+                <div className="h-3 bg-border rounded animate-pulse w-1/2" />
+              </div>
             ))
           : albums.map((album, i) => {
               const favId = buildFavouriteId("album", album.name, album.artist);
@@ -50,28 +56,28 @@ export default function GenreRow({ genre }: Props) {
                       addedAt: Date.now(),
                     })
                   }
-                  className={`relative flex-shrink-0 w-24 aspect-square rounded-lg overflow-hidden cursor-pointer group ${isFav ? "ring-2 ring-spotify" : ""}`}
+                  className="flex flex-col rounded-xl hover:bg-border transition-colors p-1 -m-1 cursor-pointer"
                 >
-                  {album.imageUrl ? (
-                    <Image
-                      src={album.imageUrl}
-                      alt={album.name}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      sizes="96px"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-border flex items-center justify-center text-muted font-bold">
-                      {album.name.charAt(0)}
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-1.5">
-                    <p className="text-white text-[10px] font-semibold truncate">{album.name}</p>
-                    <p className="text-white/70 text-[10px] truncate">{album.artist}</p>
+                  <div className="relative w-full aspect-square">
+                    {album.imageUrl ? (
+                      <Image
+                        src={album.imageUrl}
+                        alt={album.name}
+                        fill
+                        className="rounded-xl object-cover"
+                        sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-xl bg-border flex items-center justify-center text-muted text-4xl font-bold uppercase">
+                        {album.name.charAt(0)}
+                      </div>
+                    )}
+                    {isFav && (
+                      <div className="absolute top-1.5 right-1.5 text-base leading-none">💚</div>
+                    )}
                   </div>
-                  {isFav && (
-                    <div className="absolute top-1 right-1 text-xs leading-none">💚</div>
-                  )}
+                  <p className="text-xs font-medium text-foreground mt-2 leading-tight line-clamp-2">{album.name}</p>
+                  <p className="text-xs text-muted mt-0.5 truncate">{album.artist}</p>
                 </div>
               );
             })}
