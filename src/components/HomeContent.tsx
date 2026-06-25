@@ -11,7 +11,7 @@ import { useSearch } from "@/hooks/useSearch";
 import { useFavourites } from "@/hooks/useFavourites";
 import { useHistorique } from "@/hooks/useHistorique";
 
-const GENRES = ["Pop", "Rock", "Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"];
+const GENRES = ["Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"];
 
 const SESSION_KEY = "spotifind_query";
 
