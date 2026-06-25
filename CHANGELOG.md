@@ -13,6 +13,12 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Fixed
 
+- **home — animations entrée et scroll** : `src/components/HomeCharts.tsx` — ajout de `reveal-ltr` sur les 3 titres de section (Trending Artists / Pop / Rock) et `transitionDelay` échelonné sur les cartes albums ; `src/components/GenreRow.tsx` — `reveal-ltr` sur le titre de section, classe `scroll-fade-in` avec `transitionDelay` échelonné sur chaque carte album, `<ScrollAnimator deps={[albums]} />` pour re-déclencher les animations après chargement des albums
+
+- **ui — ScrollAnimator scroll-driven restauré** : `src/components/ScrollAnimator.tsx` — suppression de `unobserve` ; le comportement scroll-driven est rétabli : `.visible` retiré quand l'élément quitte le viewport, rajouté à la ré-entrée, l'animation `scrollFadeIn` rejoue à chaque passage
+
+- **ui — ScrollAnimator refactor** : `src/components/ScrollAnimator.tsx` — remplacement de la logique `transition: opacity` (perturbée par React qui met à jour `transitionDelay` inline et relance la cascade CSS) par `@keyframes scrollFadeIn` dans `globals.css` ; threshold abaissé à 0.08
+
 - **ui — ScrollAnimator fallback viewport** : `src/components/ScrollAnimator.tsx` — ajout d'un second `requestAnimationFrame` après la création de l'`IntersectionObserver` pour activer immédiatement les éléments `.scroll-fade-in` déjà dans le viewport si le callback IO tarde à se déclencher (corrige les albums invisibles sur la home et la page explore)
 
 - **home — chargement en deux étapes** : `src/components/HomeContent.tsx` + `src/components/HomeCharts.tsx` — `useHomeCharts` remonté dans `HomeContent` ; les `GenreRow` ne se mountent (et ne fetchent) qu'après `chartsLoading === false`, supprimant l'affichage décalé albums-avant-artistes ; `HomeCharts` reçoit `data/loading/error` en props et affiche un skeleton structuré (artistes + 2 grilles albums) pendant le chargement pour éviter le layout shift

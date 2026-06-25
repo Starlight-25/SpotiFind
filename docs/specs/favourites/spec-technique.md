@@ -3,8 +3,8 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.6.1               |
-| Date    | 2026-06-23          |
+| Version | 0.6.3               |
+| Date    | 2026-06-25          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
 
@@ -174,24 +174,30 @@ Client Component réutilisable. Monte un `IntersectionObserver` sur tous les él
 | `deps` | `unknown[]` (optionnel) | Tableau de dépendances — si fourni, l'observateur est remonté à chaque changement (pattern identique à `useEffect`) |
 
 **Comportement :**
-- Direction awareness : l'observateur compare la position verticale du scroll entre deux frames pour détecter si l'utilisateur scrolle vers le bas ou vers le haut. La CSS custom property `--slide-from` est posée sur chaque élément (valeur `"top"` ou `"bottom"`) avant d'ajouter la classe `visible`.
-- `requestAnimationFrame` utilisé pour le timing : la classe `visible` est ajoutée dans la frame suivante après l'entrée dans le viewport, évitant les transitions avortées.
-- Cleanup : l'observateur est déconnecté (`observer.disconnect()`) au démontage du composant (retour de `useEffect`).
+- `requestAnimationFrame` utilisé pour le timing : l'observateur est créé dans la frame suivante, garantissant que les éléments sont dans le DOM avant observation.
+- Observation continue : l'`IntersectionObserver` observe chaque `.scroll-fade-in` sans `unobserve`. La classe `.visible` est ajoutée à l'entrée dans le viewport et retirée à la sortie, ce qui fait rejouer l'animation `scrollFadeIn` à chaque re-entrée.
+- Threshold : `0.08` — l'animation se déclenche dès que 8% de l'élément est visible dans le viewport.
+- Fallback viewport : un second `requestAnimationFrame` active immédiatement les éléments `.scroll-fade-in` déjà visibles si le callback `IntersectionObserver` tarde à se déclencher (corrige les albums invisibles au chargement initial).
+- Cleanup : `cancelAnimationFrame` + `observer.disconnect()` au démontage.
 - Produit aucun DOM rendu (`return null`) — effet de bord uniquement.
+- La logique `--slide-from` (direction awareness) a été supprimée : elle provoquait des conflits avec React qui remettait à jour `transitionDelay` inline et relançait la cascade CSS pendant que l'animation était en cours.
 
 **CSS associé (`src/app/globals.css`) :**
 
 ```css
+@keyframes scrollFadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .scroll-fade-in {
   opacity: 0;
-  transform: translateY(calc(var(--slide-from, bottom) == "top" ? -1rem : 1rem));
-  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 .scroll-fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: scrollFadeIn 0.45s ease forwards;
 }
 ```
+
+L'animation par `@keyframes` remplace l'ancienne approche `transition: opacity/transform`. Ce changement résout le problème où React, en mettant à jour `transitionDelay` en style inline sur un élément déjà visible, relançait la transition depuis zéro.
 
 **Intégration dans `/favourites` (`src/app/favourites/page.tsx`) :**
 

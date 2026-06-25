@@ -3,8 +3,8 @@
 | Champ         | Valeur              |
 |---------------|---------------------|
 | Module        | search              |
-| Version       | 0.2.1               |
-| Date          | 2026-06-18          |
+| Version       | 0.2.2               |
+| Date          | 2026-06-25          |
 | Source        | Rétro-ingénierie    |
 
 ## Architecture du module
@@ -82,7 +82,7 @@ Non applicable. Ce module n'utilise aucune base de données. Les résultats de r
 Les éléments ci-dessous ont été identifiés comme décisions techniques mais ont été **rejetés** comme candidats ADR (portée trop locale ou anti-pattern AP-3) :
 
 - **Debounce 400 ms** — valeur paramétrée via `debounceMs = 400` ; modifiable sans impact transverse. Documenté ici à titre informatif.
-- **Limites de résultats par catégorie** — `track.search` et `album.search` utilisent `limit=20` ; `artist.search` conserve `limit=5`. Non architecturale, modifiable en une ligne par catégorie.
+- **Limites de résultats par catégorie** — `track.search` et `album.search` utilisent `limit=20` ; `artist.search` est explicitement limité à `limit=5` (au lieu de la valeur par défaut 10) pour réduire les appels `enrichArtistThumb` TheAudioDB : 20 `track.getInfo` + 5 `enrichArtistThumb` = 25 appels d'enrichissement par requête. Non architecturale, modifiable en une ligne.
 - **`Promise.all` pour les 3 appels Last.fm** — choix d'implémentation pour la performance, non une décision architecturale.
 - **Affichage `listeners` sur Track et Artist, absent sur Album** — incohérence visible dans le code : `LastfmAlbum` ne possède pas de champ `listeners` dans les types, contrairement à `LastfmTrack` et `LastfmArtist`. Potentielle dette ou limite de l'API Last.fm.
 

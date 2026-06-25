@@ -98,7 +98,7 @@ export default function HomeCharts({ data, loading, error }: Props) {
       <ScrollAnimator deps={[data]} />
       {/* Top artistes */}
       <div className="flex-shrink-0 mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border reveal-ltr">
           Trending Artists
         </h2>
         <ArtistScroller>
@@ -110,12 +110,12 @@ export default function HomeCharts({ data, loading, error }: Props) {
 
       {/* Albums Pop */}
       <div className="flex-shrink-0 mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border reveal-ltr">
           Trending Albums — Pop
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
           {data.albums.map((a, i) => (
-            <div key={i} className="scroll-fade-in">
+            <div key={i} className="scroll-fade-in" >
               <AlbumCard album={a} />
             </div>
           ))}
@@ -124,12 +124,12 @@ export default function HomeCharts({ data, loading, error }: Props) {
 
       {/* Albums Rock */}
       <div className="flex-shrink-0">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border reveal-ltr">
           Trending Albums — Rock
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
           {data.albumsRock.map((a, i) => (
-            <div key={i} className="scroll-fade-in">
+            <div key={i} className="scroll-fade-in" >
               <AlbumCard album={a} />
             </div>
           ))}

@@ -137,13 +137,25 @@
 
 .scroll-fade-in {
   opacity: 0;
-  transform: translateY(var(--slide-from, 14px));
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateY(14px);
 }
 
 .scroll-fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: scrollFadeInUp 0.45s ease forwards;
+}
+
+.scroll-fade-in.from-top.visible {
+  animation: scrollFadeInDown 0.45s ease forwards;
+}
+
+@keyframes scrollFadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrollFadeInDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes heartPop {

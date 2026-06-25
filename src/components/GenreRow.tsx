@@ -5,7 +5,13 @@ import Image from "next/image";
 import { useFavourites } from "@/hooks/useFavourites";
 import { buildFavouriteId } from "@/lib/favourite-utils";
 import { encodeAlbumSlug } from "@/lib/album-utils";
-import type { ExploreAlbum } from "@/app/api/explore/route";
+import ScrollAnimator from "@/components/ScrollAnimator";
+
+interface ExploreAlbum {
+  name: string;
+  artist: string;
+  imageUrl: string;
+}
 
 interface Props {
   genre: string;
@@ -26,7 +32,8 @@ export default function GenreRow({ genre }: Props) {
 
   return (
     <div className="flex-shrink-0">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border">
+      <ScrollAnimator deps={[albums]} />
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 pb-2 border-b border-border reveal-ltr">
         Trending Albums — {genre}
       </h2>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
@@ -45,39 +52,43 @@ export default function GenreRow({ genre }: Props) {
               return (
                 <div
                   key={i}
-                  onClick={() =>
-                    toggle({
-                      id: favId,
-                      kind: "album",
-                      name: album.name,
-                      artist: album.artist,
-                      imageUrl: album.imageUrl || undefined,
-                      href,
-                      addedAt: Date.now(),
-                    })
-                  }
-                  className="flex flex-col rounded-xl hover:bg-border transition-colors p-1 -m-1 cursor-pointer"
+                  className="scroll-fade-in"
                 >
-                  <div className="relative w-full aspect-square">
-                    {album.imageUrl ? (
-                      <Image
-                        src={album.imageUrl}
-                        alt={album.name}
-                        fill
-                        className="rounded-xl object-cover"
-                        sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-xl bg-border flex items-center justify-center text-muted text-4xl font-bold uppercase">
-                        {album.name.charAt(0)}
-                      </div>
-                    )}
-                    {isFav && (
-                      <div className="absolute top-1.5 right-1.5 text-base leading-none">💚</div>
-                    )}
+                  <div
+                    onClick={() =>
+                      toggle({
+                        id: favId,
+                        kind: "album",
+                        name: album.name,
+                        artist: album.artist,
+                        imageUrl: album.imageUrl || undefined,
+                        href,
+                        addedAt: Date.now(),
+                      })
+                    }
+                    className="flex flex-col rounded-xl hover:bg-border transition-colors p-1 -m-1 cursor-pointer"
+                  >
+                    <div className="relative w-full aspect-square">
+                      {album.imageUrl ? (
+                        <Image
+                          src={album.imageUrl}
+                          alt={album.name}
+                          fill
+                          className="rounded-xl object-cover"
+                          sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-xl bg-border flex items-center justify-center text-muted text-4xl font-bold uppercase">
+                          {album.name.charAt(0)}
+                        </div>
+                      )}
+                      {isFav && (
+                        <div className="absolute top-1.5 right-1.5 text-base leading-none">💚</div>
+                      )}
+                    </div>
+                    <p className="text-xs font-medium text-foreground mt-2 leading-tight line-clamp-2">{album.name}</p>
+                    <p className="text-xs text-muted mt-0.5 truncate">{album.artist}</p>
                   </div>
-                  <p className="text-xs font-medium text-foreground mt-2 leading-tight line-clamp-2">{album.name}</p>
-                  <p className="text-xs text-muted mt-0.5 truncate">{album.artist}</p>
                 </div>
               );
             })}
