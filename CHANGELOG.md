@@ -9,6 +9,20 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **explore — animations d'entrée et scroll** : `src/app/explore/page.tsx` — `header-enter` sur le lien retour, `reveal-ltr` sur le conteneur `GenreChips` ; `AlbumMosaic` : chaque carte reçoit la classe `scroll-fade-in` avec `transitionDelay` échelonné (55ms × index, max 440ms) ; `<ScrollAnimator deps={[albums]} />` ajouté dans la page pour re-déclencher les animations au changement de genre ou au refresh
+
+### Fixed
+
+- **ui — ScrollAnimator fallback viewport** : `src/components/ScrollAnimator.tsx` — ajout d'un second `requestAnimationFrame` après la création de l'`IntersectionObserver` pour activer immédiatement les éléments `.scroll-fade-in` déjà dans le viewport si le callback IO tarde à se déclencher (corrige les albums invisibles sur la home et la page explore)
+
+- **home — chargement en deux étapes** : `src/components/HomeContent.tsx` + `src/components/HomeCharts.tsx` — `useHomeCharts` remonté dans `HomeContent` ; les `GenreRow` ne se mountent (et ne fetchent) qu'après `chartsLoading === false`, supprimant l'affichage décalé albums-avant-artistes ; `HomeCharts` reçoit `data/loading/error` en props et affiche un skeleton structuré (artistes + 2 grilles albums) pendant le chargement pour éviter le layout shift
+
+- **search — réduction des appels d'enrichissement artistes** : `src/app/api/search/route.ts` — `artist.search` limité à 5 résultats (au lieu de 10) réduisant les appels `enrichArtistThumb` TheAudioDB de moitié ; `track.search` conserve 20 résultats avec enrichissement complet
+
+- **config — cache webpack mémoire en dev** : `next.config.mjs` — ajout `webpack: config.cache = { type: "memory" }` en développement pour corriger la race condition Windows ENOENT lors du rename des fichiers `.pack.gz_` après suppression du dossier `.next`
+
+### Added
+
 - **auth — page signup** : `src/app/signup/page.tsx` — Client Component, formulaire création de compte email + mot de passe (confirmation de mot de passe avec validation côté client, minLength=6) ; appelle `supabase.auth.signUp` via `createClient()` ; redirige vers `/` après inscription réussie ; lien vers `/login`
 
 - **auth — page login + import favoris** : `src/app/login/page.tsx` (Server Component wrapper `<Suspense>`) + `src/app/login/LoginForm.tsx` (Client Component) — formulaire connexion email/password via `supabase.auth.signInWithPassword` ; détection des favoris localStorage post-connexion et affichage de `ImportFavouritesModal` si présents ; `handleImportDecision` effectue un upsert Supabase `favourites` (`onConflict: user_id,kind,name,artist`) si l'utilisateur accepte, puis nettoie localStorage ; paramètre `?redirect=<pathname>` supporté

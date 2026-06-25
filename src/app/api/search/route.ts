@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const [tracksData, artistsData, albumsData] = await Promise.all([
-      lastfmSearch("track.search", "track", query, 10),
+      lastfmSearch("track.search", "track", query, 20),
       lastfmSearch("artist.search", "artist", query, 5),
       lastfmSearch("album.search", "album", query, 20),
     ]);
