@@ -7,10 +7,13 @@ import SearchBar from "@/components/SearchBar";
 import SearchResults from "@/components/SearchResults";
 import HomeCharts from "@/components/HomeCharts";
 import { GlassButton } from "@/components/ui/glass-button";
+import GenreRow from "@/components/GenreRow";
 import { useSearch } from "@/hooks/useSearch";
 import { useFavourites } from "@/hooks/useFavourites";
 import { useHistorique } from "@/hooks/useHistorique";
 import { createClient } from "@/lib/supabase";
+
+const GENRES = ["Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"];
 
 const SESSION_KEY = "spotifind_query";
 
@@ -146,7 +149,16 @@ export default function HomeContent() {
         </div>
 
         <div className="relative z-0">
-          {!query && <HomeCharts />}
+          {!query && (
+            <>
+              <HomeCharts />
+              <div className="flex flex-col gap-6 mt-6 pb-6">
+                {GENRES.map(genre => (
+                  <GenreRow key={genre} genre={genre} />
+                ))}
+              </div>
+            </>
+          )}
 
           {query && loading && (
             <p className="text-sm text-muted text-center mt-8">Recherche…</p>
