@@ -6,9 +6,12 @@ import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import SearchResults from "@/components/SearchResults";
 import HomeCharts from "@/components/HomeCharts";
+import GenreRow from "@/components/GenreRow";
 import { useSearch } from "@/hooks/useSearch";
 import { useFavourites } from "@/hooks/useFavourites";
 import { useHistorique } from "@/hooks/useHistorique";
+
+const GENRES = ["Pop", "Rock", "Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"];
 
 const SESSION_KEY = "spotifind_query";
 
@@ -50,16 +53,6 @@ export default function HomeContent() {
                   {historique.length}
                 </span>
               )}
-            </Link>
-            <Link
-              href="/explore"
-              aria-label="Explorer par genre"
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-border transition-colors pop-in"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-              </svg>
             </Link>
           </div>
           <div className="flex items-center justify-center gap-3 header-enter">
@@ -105,7 +98,16 @@ export default function HomeContent() {
         </div>
 
         <div className="relative z-0">
-          {!query && <HomeCharts />}
+          {!query && (
+            <>
+              <HomeCharts />
+              <div className="flex flex-col gap-6 mt-6 pb-6">
+                {GENRES.map(genre => (
+                  <GenreRow key={genre} genre={genre} />
+                ))}
+              </div>
+            </>
+          )}
 
           {query && loading && (
             <p className="text-sm text-muted text-center mt-8">Recherche…</p>
