@@ -41,8 +41,8 @@ export async function GET() {
     const key = getLastfmKey();
     const [artistsRes, albumsPopRes, albumsRockRes] = await Promise.all([
       fetch(`${LASTFM_BASE}?method=chart.getTopArtists&limit=10&api_key=${key}&format=json`, { cache: "no-store" }),
-      fetch(`${LASTFM_BASE}?method=tag.getTopAlbums&tag=pop&limit=10&api_key=${key}&format=json`, { cache: "no-store" }),
-      fetch(`${LASTFM_BASE}?method=tag.getTopAlbums&tag=rock&limit=10&api_key=${key}&format=json`, { cache: "no-store" }),
+      fetch(`${LASTFM_BASE}?method=tag.getTopAlbums&tag=pop&limit=5&api_key=${key}&format=json`, { cache: "no-store" }),
+      fetch(`${LASTFM_BASE}?method=tag.getTopAlbums&tag=rock&limit=5&api_key=${key}&format=json`, { cache: "no-store" }),
     ]);
 
     const artistsData = await artistsRes.json();
