@@ -11,6 +11,7 @@ import GenreRow from "@/components/GenreRow";
 import { useSearch } from "@/hooks/useSearch";
 import { useFavourites } from "@/hooks/useFavourites";
 import { useHistorique } from "@/hooks/useHistorique";
+import { useHomeCharts } from "@/hooks/useHomeCharts";
 import { createClient } from "@/lib/supabase";
 
 const GENRES = ["Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"];
@@ -22,6 +23,7 @@ export default function HomeContent() {
   const { results, loading, error } = useSearch(query.trim());
   const { favourites, ready, isAuthenticated } = useFavourites();
   const { historique } = useHistorique();
+  const { data: chartsData, loading: chartsLoading, error: chartsError } = useHomeCharts();
   const count = ready ? favourites.length : 0;
   const router = useRouter();
 
@@ -151,12 +153,14 @@ export default function HomeContent() {
         <div className="relative z-0">
           {!query && (
             <>
-              <HomeCharts />
-              <div className="flex flex-col gap-6 mt-6 pb-6">
-                {GENRES.map(genre => (
-                  <GenreRow key={genre} genre={genre} />
-                ))}
-              </div>
+              <HomeCharts data={chartsData} loading={chartsLoading} error={chartsError} />
+              {!chartsLoading && (
+                <div className="flex flex-col gap-6 mt-6 pb-6">
+                  {GENRES.map(genre => (
+                    <GenreRow key={genre} genre={genre} />
+                  ))}
+                </div>
+              )}
             </>
           )}
 

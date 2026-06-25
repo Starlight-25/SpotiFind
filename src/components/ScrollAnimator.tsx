@@ -25,6 +25,18 @@ export default function ScrollAnimator({ deps }: { deps?: unknown[] }) {
         { threshold: 0.1 }
       );
       els.forEach((el) => observer.observe(el));
+
+      // Fallback: activate elements already in viewport if IO is slow to fire
+      requestAnimationFrame(() => {
+        els.forEach((el) => {
+          if (!el.classList.contains("visible")) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              el.classList.add("visible");
+            }
+          }
+        });
+      });
     });
     return () => {
       cancelAnimationFrame(rafId);

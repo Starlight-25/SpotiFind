@@ -68,6 +68,18 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 - **favourites — lien cœur header HomeContent** : `src/components/HomeContent.tsx` — le `<Link>` du header pointe désormais vers `/login?redirect=/favourites` si `isAuthenticated === false` (lu depuis `useFavourites()`), et vers `/favourites` si authentifié ; complète la protection middleware (serveur) par une redirection client-side dès le clic
 
+- **explore — lignes genre sur la homepage** : 6 lignes de genre (`GenreRow`) intégrées dans `HomeContent.tsx` sous `HomeCharts` (visible uniquement sans requête active) ; liste de genres fixe `["Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"]` ; import `GenreRow` résolu après merge `feat/style-animations` ← `origin/main`
+
+- **explore — page /explore** : `src/app/explore/page.tsx` — grille d'albums par genre ; composants `AlbumMosaic`, `MosaicCard`, `GenreChips` ; route API `GET /api/explore?tag=<genre>&limit=<n>` (Last.fm `tag.getTopAlbums`) ; fonctionnalité "rafraîchir" ; bouton boussole dans le header
+
+- **scroll animation — fix RAF fallback `ScrollAnimator`** : second `requestAnimationFrame` imbriqué ajouté dans `src/components/ScrollAnimator.tsx` — si l'`IntersectionObserver` tarde à se déclencher, le RAF vérifie `getBoundingClientRect()` et ajoute directement `.visible` aux éléments `.scroll-fade-in` déjà dans le viewport ; corrige une régression où les éléments restaient `opacity:0` indéfiniment dans certains navigateurs/contextes
+
+### Changed
+
+- **explore — animations d'entrée `AlbumMosaic`** : chaque `MosaicCard` dans `src/components/AlbumMosaic.tsx` est désormais wrappée dans un `<div class="scroll-fade-in">` avec `transitionDelay` échelonné (55ms × index, max 440ms) — effet d'entrée en cascade au chargement de la grille
+
+- **explore — polish page `/explore`** : `src/app/explore/page.tsx` enrichi avec `<ScrollAnimator deps={[albums]} />` (re-trigger à chaque changement de genre), classe `header-enter` sur le lien retour, wrapper `<div class="reveal-ltr">` autour de `GenreChips`
+
 ### Removed
 
 ### BDD
