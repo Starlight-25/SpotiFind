@@ -59,20 +59,19 @@ export async function GET(req: NextRequest) {
 
   try {
     const [tracksData, artistsData, albumsData] = await Promise.all([
-      lastfmSearch("track.search", "track", query, 20),
-      lastfmSearch("artist.search", "artist", query),
+      lastfmSearch("track.search", "track", query, 10),
+      lastfmSearch("artist.search", "artist", query, 5),
       lastfmSearch("album.search", "album", query, 20),
     ]);
 
     const rawTracks: Record<string, unknown>[] = tracksData.results?.trackmatches?.track ?? [];
     const rawArtists: Record<string, unknown>[] = artistsData.results?.artistmatches?.artist ?? [];
 
-    // Enrich only the first N items — each enrichment is a separate API call
-    const [enrichedTop, enrichedArtists] = await Promise.all([
-      Promise.all(rawTracks.slice(0, 8).map(enrichTrackImage)),
-      Promise.all(rawArtists.slice(0, 5).map(enrichArtistThumb)),
+    // Enrich all returned tracks/artists — each is a separate API call (10+5=15 vs old 20+10=30)
+    const [enrichedTracks, enrichedArtists] = await Promise.all([
+      Promise.all(rawTracks.map(enrichTrackImage)),
+      Promise.all(rawArtists.map(enrichArtistThumb)),
     ]);
-    const enrichedTracks = [...enrichedTop, ...rawTracks.slice(8)];
 
     return NextResponse.json({
       tracks: enrichedTracks,
