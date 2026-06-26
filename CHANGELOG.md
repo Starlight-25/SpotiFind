@@ -102,4 +102,6 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Removed
 
+- **ui — badge compteur historique** : `src/components/HomeContent.tsx` — suppression du `<span>` affichant `historique.length` en badge `-top-1 -right-1` sur le bouton Historique du header ; `aria-label` simplifié de `Historique (N)` → `Historique`
+
 ### BDD
