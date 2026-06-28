@@ -1,87 +1,114 @@
-# Spec Fonctionnelle — Page Artiste [DRAFT — à valider par le dev]
+# Spec Fonctionnelle — Page Artiste
 
 | Champ      | Valeur              |
 |------------|---------------------|
 | Module     | artist-page         |
-| Version    | 0.1.0               |
-| Date       | 2026-06-17          |
-| Auteur     | retro-documenter    |
-| Statut     | DRAFT / STUB        |
-| Source     | Rétro-ingénierie    |
-
-> **[DRAFT — à valider par le dev]** Cette spec a été générée par rétro-ingénierie
-> à partir du code existant et des types de données disponibles. La page
-> `src/app/artist/[id]/page.tsx` est un squelette vide : aucun comportement n'est
-> implémenté. Les règles ci-dessous sont déduites du README, des types Spotify
-> (`spotify-types.ts`) et du proxy générique `/api/spotify`. Elles doivent être
-> validées par le développeur avant toute implémentation.
+| Version    | 0.2.0               |
+| Date       | 2026-06-28          |
+| Auteur     | update-writer       |
+| Statut     | Validé              |
+| Source     | Code implémenté     |
 
 ---
 
 ## ADRs
 
-Aucun ADR RETRO spécifique à cette feature. Les décisions transverses applicables sont :
-
 | ADR | Titre | Statut |
 |-----|-------|--------|
-| [RETRO-002](../../adr/RETRO-002-server-side-api-proxy.md) | Proxy server-side pour les clés API tierces | Documenté (rétro) |
+| [RETRO-001](../../adr/RETRO-001-lastfm-primary-search-source.md) | Last.fm comme source primaire | Actif |
+| [RETRO-002](../../adr/RETRO-002-server-side-api-proxy.md) | Proxy server-side pour les clés API | Actif |
 
 ---
 
 ## Contexte et objectif
 
-La page `/artist/[id]` est une route dynamique Next.js destinée à afficher le profil détaillé d'un artiste identifié par son identifiant Spotify. Elle constitue la destination naturelle depuis les résultats de recherche lorsqu'un utilisateur clique sur une carte artiste.
+La page `/artist/[id]` affiche le profil détaillé d'un artiste musical. Elle est accessible depuis les résultats de recherche (clic sur une carte artiste) ou directement via URL. Toutes les données proviennent de Last.fm et TheAudioDB — l'API Spotify n'est pas utilisée.
 
-L'identifiant `[id]` dans l'URL correspond à l'identifiant Spotify de l'artiste (ex. `6XyY86QOPPrYVGvF9ch6wz` pour Linkin Park). La page consomme le proxy `/api/spotify` pour accéder à l'API Spotify v1 sans exposer le token au navigateur.
+Le paramètre `[id]` est le **nom de l'artiste URL-encodé** (ex. `/artist/Daft%20Punk`).
 
-## Règles métier (déduites du README et des types)
+---
 
-1. L'identifiant `[id]` dans l'URL est l'identifiant Spotify de l'artiste — il est fourni directement par l'API Spotify et non par Last.fm (les MBIDs Last.fm ne sont pas utilisables ici).
-2. La page affiche : artwork principal de l'artiste, nom, nombre de followers, liste des genres, top 5 tracks populaires, et discographie complète (liste d'albums).
-3. Les données sont récupérées via le proxy `/api/spotify?path=/artists/{id}` et des appels complémentaires pour les top tracks et albums (endpoints Spotify dédiés).
-4. Les credentials Spotify ne transitent jamais vers le client : le token OAuth est géré exclusivement par `src/lib/spotify.ts` côté serveur.
-5. Les images de l'artiste sont fournies par le tableau `SpotifyArtist.images` (format `{ url, width, height }`). La configuration actuelle de `next/image` n'autorise que `lastfm.freetls.fastly.net` — les domaines Spotify devront être ajoutés à `next.config.mjs` pour que les images s'affichent.
+## Sources de données
 
-## Cas d'usage (déduits)
+| Donnée | Source | Méthode |
+|--------|--------|---------|
+| Profil artiste (nom, listeners) | Last.fm | `artist.getInfo` via `fetchArtistByName` |
+| Photo de l'artiste | TheAudioDB | `fetchArtistSpotifyData` → `strArtistThumb` |
+| Top tracks (max 10) | Last.fm | `artist.getTopTracks` → enrichi avec art via `album.getInfo` |
+| Discographie | Last.fm | `artist.getTopAlbums` |
+
+La page est un **Server Component** (`async`) : tous les appels API sont effectués côté serveur via `src/lib/artist-service.ts`. Aucun credentials n'est exposé au client.
+
+---
+
+## Règles métier
+
+1. L'identifiant `[id]` est le nom de l'artiste URL-encodé — pas un ID opaque (MBID, Spotify ID).
+2. Si l'artiste est introuvable (Last.fm retourne `null`), la page affiche un `ErrorBanner` avec message explicatif. Aucune redirection.
+3. La photo de l'artiste est récupérée depuis TheAudioDB. En l'absence de photo, un fallback affiche l'initiale du nom sur fond `bg-border`.
+4. Le nombre de monthly listeners (Last.fm `stats.listeners`) est affiché si disponible, formaté en notation locale (`fr-FR`).
+5. Les top tracks sont affichés en section "Top Tracks" avec : rang, pochette d'album, nom du track, nom de l'album (si disponible), playcount (si disponible), durée (si disponible). Chaque track est cliquable vers `/album/[slug]` si un album est associé.
+6. La discographie est affichée en grille responsive (3 → 4 → 5 colonnes selon breakpoint) avec pochette, nom et année de sortie. Chaque album est cliquable vers `/album/[slug]`.
+7. Le bouton cœur (`HeartButton`) permet d'ajouter l'artiste aux favoris. Si l'utilisateur n'est pas authentifié, il est redirigé vers `/login`.
+8. Un `HistoriqueTracker` enregistre la visite dans l'historique de navigation (localStorage `spotifind_historique`).
+9. Les animations scroll (`ScrollAnimator`, classes `scroll-fade-in`, `reveal-ltr`, `text-reveal`, `photo-reveal`) sont activées sur les éléments de la page.
+
+---
+
+## Cas d'usage
 
 ### CU-001 — Consultation du profil artiste
 
-**Acteur :** Visiteur non authentifié
+**Acteur :** Utilisateur (authentifié ou non)
 
 **Préconditions :**
-- Les variables `SPOTIFY_CLIENT_ID` et `SPOTIFY_CLIENT_SECRET` sont présentes en environnement serveur.
-- L'identifiant `[id]` dans l'URL est un identifiant Spotify valide.
+- `LASTFM_API_KEY` est présent en environnement serveur.
+- Le nom de l'artiste dans l'URL correspond à un artiste connu de Last.fm.
 
 **Flux principal :**
-1. L'utilisateur navigue vers `/artist/<id>` (via un lien depuis les résultats de recherche ou une URL directe).
-2. La page récupère les données de l'artiste via `GET /api/spotify?path=/artists/<id>`.
-3. La page récupère les top tracks via `GET /api/spotify?path=/artists/<id>/top-tracks`.
-4. La page récupère la discographie via `GET /api/spotify?path=/artists/<id>/albums`.
-5. L'artwork, le nom, le nombre de followers, les genres, les top 5 tracks et la liste d'albums sont affichés.
+1. L'utilisateur navigue vers `/artist/<nom-url-encodé>`.
+2. La page appelle `fetchArtistByName(name)` et `fetchArtistSpotifyData(name)` en parallèle.
+3. La photo (TheAudioDB), le nom, le compteur de listeners, les top tracks et la discographie sont affichés.
+4. L'utilisateur peut naviguer vers un album via la section "Top Tracks" ou "Albums".
 
 **Flux alternatifs :**
-- Si l'identifiant est inconnu de Spotify (404) : affichage d'un message "Artiste introuvable" ou redirection vers la homepage.
-- Si les credentials Spotify sont absents ou expirés : affichage d'un message d'erreur générique (le proxy renvoie une erreur 500).
-- Pendant le chargement : affichage d'un état skeleton/loading cohérent avec le design global.
+- Artiste inconnu → `ErrorBanner` "Artiste introuvable."
+- Pas de photo → initiale du nom sur fond neutre.
+- Pas de top tracks → section "Top Tracks" masquée.
+- Pas d'albums → section "Albums" masquée.
 
-### CU-002 — Navigation vers un album depuis le profil artiste
+### CU-002 — Ajout aux favoris
 
-**Flux :** L'utilisateur clique sur un album dans la discographie. Il est redirigé vers `/album/<album_id>`.
+**Flux :**
+1. L'utilisateur clique sur `HeartButton`.
+2. Si non authentifié → redirection `/login`.
+3. Si authentifié → bascule favori (ajout ou suppression), animation burst de particules si ajout.
+
+### CU-003 — Navigation vers un album
+
+**Flux :** Clic sur un track (section Top Tracks) ou une pochette (section Albums) → redirection vers `/album/<encodeAlbumSlug(artistName, albumName)>`.
+
+---
+
+## Composants impliqués
+
+| Composant | Rôle |
+|-----------|------|
+| `ArtistTopTracks` | Liste top tracks avec rang, art, stats, HeartButton par track |
+| `ArtistAlbums` | Grille discographie avec pochette, nom, année |
+| `HeartButton` | Bouton cœur favori (artist) avec animation burst |
+| `BackButton` | Retour page précédente (haut-gauche) |
+| `ErrorBanner` | Affichage erreur artiste introuvable |
+| `ScrollAnimator` | Réinitialise les animations scroll au montage |
+| `HistoriqueTracker` | Enregistre la visite dans l'historique |
+
+---
 
 ## Dépendances
 
-- **Spotify Web API** — endpoints `/artists/{id}`, `/artists/{id}/top-tracks`, `/artists/{id}/albums`. Credentials requis : `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`.
-- **Next.js Route Handler `/api/spotify`** — proxy générique vers l'API Spotify.
-- **`src/lib/spotify.ts`** — gestion du token OAuth 2.0 (Client Credentials, cache mémoire, retry 401).
-- **`src/lib/spotify-types.ts`** — types `SpotifyArtist`, `SpotifyAlbum`, `SpotifyTrack`, `SpotifyImage`.
-- **`next.config.mjs`** — doit autoriser les domaines d'images Spotify (`i.scdn.co` ou autre CDN Spotify) pour que `next/image` puisse les afficher.
-
-## Zones d'incertitude
-
-> Les points suivants n'ont pas pu être déterminés par le code seul :
-
-- Comment l'utilisateur navigue-t-il de la page de recherche (résultats Last.fm, sans ID Spotify) vers `/artist/[id]` (qui requiert un ID Spotify) ? Une résolution d'ID intermédiaire via `/api/spotify?path=/search` est probable mais non implémentée.
-- La page doit-elle être un Server Component (fetch côté serveur, SSR) ou un Client Component (fetch côté navigateur vers le proxy) ? Le README mentionne des "Skeleton Loaders" (pattern Client Component), mais le proxy Spotify est conçu pour être appelé côté serveur.
-- Le top 5 tracks : est-ce un maximum absolu ou le nombre par défaut retourné par l'endpoint Spotify `/top-tracks` (qui en retourne jusqu'à 10) ?
-- La discographie inclut-elle uniquement les albums ou aussi les singles et EPs ? L'endpoint Spotify `/artists/{id}/albums` supporte un filtre `include_groups` non encore spécifié.
-- Quel est le comportement attendu si l'artiste n'a pas d'image disponible sur Spotify ?
+- **`src/lib/artist-service.ts`** — `fetchArtistByName`, `fetchArtistSpotifyData` (Last.fm + TheAudioDB)
+- **`src/lib/music-types.ts`** — `LastfmArtist`, `ArtistTopTrack`, `ArtistAlbum`
+- **`src/lib/favourite-utils.ts`** — `buildFavouriteId("artist", name)`
+- **`src/lib/album-utils.ts`** — `encodeAlbumSlug(artist, album)` pour les liens
+- **`next.config.mjs`** — domaines images autorisés : `lastfm.freetls.fastly.net`, `www.theaudiodb.com`, `r2.theaudiodb.com`
+- **Variable d'env** — `LASTFM_API_KEY` (serveur uniquement)

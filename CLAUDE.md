@@ -9,7 +9,7 @@
 - **Framework :** Next.js 14.2.35 (App Router)
 - **BDD :** Aucune — favoris en localStorage côté client
 - **ORM :** Aucun
-- **Auth :** Spotify Client Credentials (machine-to-machine) — cf. RETRO-003
+- **Auth :** Supabase (email/password) pour les favoris — Spotify retiré
 - **Déploiement :** Non défini
 
 ## Commandes
@@ -36,10 +36,10 @@ npm run lint     # ESLint
 |--------|---|---|---|
 | search | [docs/specs/search/spec-fonctionnel.md](docs/specs/search/spec-fonctionnel.md) | [docs/specs/search/spec-technique.md](docs/specs/search/spec-technique.md) | RETRO-001, RETRO-002 |
 | proxy-lastfm | [docs/specs/proxy-lastfm/spec-fonctionnel.md](docs/specs/proxy-lastfm/spec-fonctionnel.md) | [docs/specs/proxy-lastfm/spec-technique.md](docs/specs/proxy-lastfm/spec-technique.md) | RETRO-001, RETRO-002 |
-| proxy-spotify | [docs/specs/proxy-spotify/spec-fonctionnel.md](docs/specs/proxy-spotify/spec-fonctionnel.md) | [docs/specs/proxy-spotify/spec-technique.md](docs/specs/proxy-spotify/spec-technique.md) | RETRO-002 |
-| spotify-token | [docs/specs/spotify-token/spec-fonctionnel.md](docs/specs/spotify-token/spec-fonctionnel.md) | [docs/specs/spotify-token/spec-technique.md](docs/specs/spotify-token/spec-technique.md) | RETRO-003 |
-| artist-page | [docs/specs/artist-page/spec-fonctionnel.md](docs/specs/artist-page/spec-fonctionnel.md) | — (stub) | RETRO-001 |
-| album-page | [docs/specs/album-page/spec-fonctionnel.md](docs/specs/album-page/spec-fonctionnel.md) | — (stub) | RETRO-001 |
-| favourites | [docs/specs/favourites/spec-fonctionnel.md](docs/specs/favourites/spec-fonctionnel.md) | — (stub) | RETRO-004 |
+| ~~proxy-spotify~~ | ~~[OBSOLÈTE]~~ | ~~[OBSOLÈTE]~~ | ~~RETRO-002~~ |
+| ~~spotify-token~~ | ~~[OBSOLÈTE]~~ | ~~[OBSOLÈTE]~~ | — |
+| artist-page | [docs/specs/artist-page/spec-fonctionnel.md](docs/specs/artist-page/spec-fonctionnel.md) | [docs/specs/artist-page/spec-technique.md](docs/specs/artist-page/spec-technique.md) | RETRO-001 |
+| album-page | [docs/specs/album-page/spec-fonctionnel.md](docs/specs/album-page/spec-fonctionnel.md) | [docs/specs/album-page/spec-technique.md](docs/specs/album-page/spec-technique.md) | RETRO-001 |
+| favourites | [docs/specs/favourites/spec-fonctionnel.md](docs/specs/favourites/spec-fonctionnel.md) | [docs/specs/favourites/spec-technique.md](docs/specs/favourites/spec-technique.md) | RETRO-004 |
 
-**Audit :** voir [docs/retro/audit-initial.md](docs/retro/audit-initial.md) — 2 items critiques à corriger avant tout dev.
+**Audit :** voir [docs/retro/audit-initial.md](docs/retro/audit-initial.md) — mis à jour 2026-06-28, stubs implémentés, Spotify retiré.
