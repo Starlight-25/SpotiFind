@@ -1,4 +1,6 @@
-# Spec Technique — Proxy Spotify
+# ~~Spec Technique — Proxy Spotify~~ [OBSOLÈTE]
+
+> **[OBSOLÈTE — 2026-06-28]** La route `/api/spotify` et le module `src/lib/spotify.ts` ont été supprimés du projet. L'API Spotify n'est plus utilisée. Conservé à titre d'historique.
 
 | Champ         | Valeur              |
 |---------------|---------------------|

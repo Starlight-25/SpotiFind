@@ -1,4 +1,6 @@
-# Spec Fonctionnelle — Gestion du token Spotify [DRAFT — à valider par le dev]
+# ~~Spec Fonctionnelle — Gestion du token Spotify~~ [OBSOLÈTE]
+
+> **[OBSOLÈTE — 2026-06-28]** Le module `src/lib/spotify.ts` et ses tests ont été supprimés. L'authentification Spotify (Client Credentials) n'est plus utilisée. Conservé à titre d'historique.
 
 | Champ      | Valeur              |
 |------------|---------------------|
@@ -17,9 +19,7 @@
 
 ## ADRs
 
-| # | Titre | Catégorie | Statut |
-|---|-------|-----------|--------|
-| [RETRO-003](../../adr/RETRO-003-spotify-client-credentials-auth.md) | Spotify — OAuth2 Client Credentials Flow (pas d'auth utilisateur) | AUTH | Documenté (rétro) |
+— (ADR RETRO-003 supprimé avec le retrait de Spotify)
 
 ---
 

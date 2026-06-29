@@ -18,7 +18,7 @@ export default function SignupPage() {
     setError(null);
 
     if (password !== confirm) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -37,11 +37,11 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm p-8 rounded-xl border border-border bg-surface">
-        <h1 className="text-2xl font-bold mb-6">Créer un compte</h1>
+      <div className="photo-reveal w-full max-w-sm p-8 rounded-xl border border-border bg-surface">
+        <h1 className="reveal-ltr text-2xl font-bold mb-6">Create an account</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm text-muted">
+            <label htmlFor="email" className="reveal-ltr text-sm text-muted" style={{ animationDelay: "0.35s" }}>
               Email
             </label>
             <input
@@ -54,8 +54,8 @@ export default function SignupPage() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm text-muted">
-              Mot de passe
+            <label htmlFor="password" className="reveal-ltr text-sm text-muted" style={{ animationDelay: "0.55s" }}>
+              Password
             </label>
             <input
               id="password"
@@ -68,8 +68,8 @@ export default function SignupPage() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="confirm" className="text-sm text-muted">
-              Confirmer le mot de passe
+            <label htmlFor="confirm" className="reveal-ltr text-sm text-muted" style={{ animationDelay: "0.75s" }}>
+              Confirm password
             </label>
             <input
               id="confirm"
@@ -85,15 +85,16 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 py-2 rounded-lg bg-spotify text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="bubble-reveal mt-2 py-2 rounded-lg bg-spotify text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            style={{ animationDelay: "0.95s" }}
           >
-            {loading ? "Création..." : "Créer mon compte"}
+            {loading ? "Creating..." : "Create account"}
           </button>
         </form>
-        <p className="mt-4 text-sm text-center text-muted">
-          Déjà un compte ?{" "}
+        <p className="fade-up mt-4 text-sm text-center text-muted" style={{ animationDelay: "1.15s" }}>
+          Already have an account?{" "}
           <Link href="/login" className="text-foreground hover:underline">
-            Se connecter
+            Sign in
           </Link>
         </p>
       </div>

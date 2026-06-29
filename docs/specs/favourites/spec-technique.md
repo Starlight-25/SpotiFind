@@ -3,8 +3,8 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.6.1               |
-| Date    | 2026-06-23          |
+| Version | 0.6.8               |
+| Date    | 2026-06-29          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
 
@@ -174,24 +174,30 @@ Client Component réutilisable. Monte un `IntersectionObserver` sur tous les él
 | `deps` | `unknown[]` (optionnel) | Tableau de dépendances — si fourni, l'observateur est remonté à chaque changement (pattern identique à `useEffect`) |
 
 **Comportement :**
-- Direction awareness : l'observateur compare la position verticale du scroll entre deux frames pour détecter si l'utilisateur scrolle vers le bas ou vers le haut. La CSS custom property `--slide-from` est posée sur chaque élément (valeur `"top"` ou `"bottom"`) avant d'ajouter la classe `visible`.
-- `requestAnimationFrame` utilisé pour le timing : la classe `visible` est ajoutée dans la frame suivante après l'entrée dans le viewport, évitant les transitions avortées.
-- Cleanup : l'observateur est déconnecté (`observer.disconnect()`) au démontage du composant (retour de `useEffect`).
+- `requestAnimationFrame` utilisé pour le timing : l'observateur est créé dans la frame suivante, garantissant que les éléments sont dans le DOM avant observation.
+- Observation continue : l'`IntersectionObserver` observe chaque `.scroll-fade-in` sans `unobserve`. La classe `.visible` est ajoutée à l'entrée dans le viewport et retirée à la sortie, ce qui fait rejouer l'animation `scrollFadeIn` à chaque re-entrée.
+- Threshold : `0.08` — l'animation se déclenche dès que 8% de l'élément est visible dans le viewport.
+- Fallback viewport : un second `requestAnimationFrame` active immédiatement les éléments `.scroll-fade-in` déjà visibles si le callback `IntersectionObserver` tarde à se déclencher (corrige les albums invisibles au chargement initial).
+- Cleanup : `cancelAnimationFrame` + `observer.disconnect()` au démontage.
 - Produit aucun DOM rendu (`return null`) — effet de bord uniquement.
+- La logique `--slide-from` (direction awareness) a été supprimée : elle provoquait des conflits avec React qui remettait à jour `transitionDelay` inline et relançait la cascade CSS pendant que l'animation était en cours.
 
 **CSS associé (`src/app/globals.css`) :**
 
 ```css
+@keyframes scrollFadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .scroll-fade-in {
   opacity: 0;
-  transform: translateY(calc(var(--slide-from, bottom) == "top" ? -1rem : 1rem));
-  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 .scroll-fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: scrollFadeIn 0.45s ease forwards;
 }
 ```
+
+L'animation par `@keyframes` remplace l'ancienne approche `transition: opacity/transform`. Ce changement résout le problème où React, en mettant à jour `transitionDelay` en style inline sur un élément déjà visible, relançait la transition depuis zéro.
 
 **Intégration dans `/favourites` (`src/app/favourites/page.tsx`) :**
 
@@ -260,7 +266,27 @@ Client Component (`"use client"`). Affiche une modal de décision post-connexion
 ### Page `/login` (`src/app/login/page.tsx` + `src/app/login/LoginForm.tsx`)
 
 - `login/page.tsx` : Server Component wrapper — encapsule `LoginForm` dans un `<Suspense>` (requis pour `useSearchParams` dans un Client Component sous Next.js App Router).
-- `LoginForm.tsx` : Client Component (`"use client"`). Formulaire email + mot de passe.
+- `LoginForm.tsx` : Client Component (`"use client"`). Formulaire email + mot de passe. Le div racine du formulaire (`.w-full.max-w-sm.p-8.rounded-xl`) porte la classe `photo-reveal` — animation d'entrée définie dans `globals.css` : `scale 0.25 → 1` + `blur 14px → 0`, durée 0.65s, `cubic-bezier` personnalisé.
+
+**Animations d'entrée séquencées (session 2026-06-29) :**
+
+Chaque élément du formulaire porte une classe d'animation avec un délai croissant, créant une séquence d'apparition staggerée :
+
+| Élément | Classe | Animation | Délai |
+|---------|--------|-----------|-------|
+| `<h1>` "Connexion" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Label "Email" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.35s |
+| Label "Mot de passe" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.55s |
+| Lien "Mot de passe oublié ?" | `reveal-rtl` | Dévoilement droite→gauche via `clip-path` | 0.55s |
+| Bouton "Se connecter" | `bubble-reveal` | Dévoilement circulaire depuis le centre via `clip-path: circle(0% → 75%)` sans rebond | 0.55s |
+| Paragraphe "Pas encore de compte ?" | `fade-up` | Fade-in + `translateY(16px → 0)` | 0.95s |
+
+**Animations CSS ajoutées dans `globals.css` (session 2026-06-29) :**
+
+- `@keyframes revealRTL` + `.reveal-rtl` : dévoilement droite→gauche via `clip-path: inset(0 100% 0 0 → 0 0% 0 0)`, pendant `0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards`.
+- `@keyframes fadeUp` + `.fade-up` : `opacity: 0 + translateY(16px) → opacity: 1 + translateY(0)`, pendant `0.5s ease forwards`.
+
+> Les animations `reveal-ltr` était déjà définie dans `globals.css` (sessions précédentes). `pop-in` a été remplacée par `bubble-reveal` (session 2026-06-29).
 
 **Flux de connexion :**
 1. `supabase.auth.signInWithPassword({ email, password })` via `createClient()`.
@@ -279,14 +305,29 @@ Client Component (`"use client"`). Formulaire de création de compte email + mot
 
 **Champs :** email, mot de passe (minLength=6), confirmation mot de passe (minLength=6).
 
-**Validation côté client :** comparaison `password !== confirm` avant appel Supabase. Si non correspondent → affiche `"Les mots de passe ne correspondent pas."` sans appel réseau.
+**Validation côté client :** comparaison `password !== confirm` avant appel Supabase. Si non correspondent → affiche `"Passwords do not match."` sans appel réseau.
 
 **Flux :**
 1. `supabase.auth.signUp({ email, password })` via `createClient()`.
 2. Si erreur → affiche `error.message` dans un `<p className="text-red-400">`.
 3. Si succès → `router.push("/")`.
 
-**Lien de navigation :** lien vers `/login` ("Déjà un compte ?") via `<Link>`.
+**Lien de navigation :** lien vers `/login` ("Already have an account?") via `<Link>`.
+
+**Animations d'entrée séquencées (session 2026-06-29) :**
+
+Le div card porte la classe `photo-reveal` (zoom+blur à l'entrée, identique à la page login). Chaque élément du formulaire porte une classe d'animation avec un délai croissant :
+
+| Élément | Classe | Animation | Délai |
+|---------|--------|-----------|-------|
+| `<h1>` "Create an account" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Label "Email" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.35s |
+| Label "Password" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.55s |
+| Label "Confirm password" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.75s |
+| Bouton "Create account" | `bubble-reveal` | Dévoilement circulaire depuis le centre via `clip-path: circle(0% → 75%)` sans rebond | 0.95s |
+| Paragraphe "Already have an account?" | `fade-up` | Fade-in + `translateY(16px → 0)` | 1.15s |
+
+Les classes CSS utilisées (`photo-reveal`, `reveal-ltr`, `bubble-reveal`, `fade-up`) sont définies dans `globals.css` (sessions précédentes — login). Aucune nouvelle animation ajoutée.
 
 ---
 
@@ -319,14 +360,33 @@ Route `GET /auth/callback` côté serveur. Échange le `code` PKCE reçu en quer
 
 Utilisé comme `redirectTo` pour le reset de mot de passe : Supabase envoie un email avec un lien pointant vers `/auth/callback?next=/reset-password`, ce qui établit la session avant de rediriger l'utilisateur vers le formulaire de nouveau mot de passe.
 
-### Page "Mot de passe oublié" (`src/app/forgot-password/page.tsx`)
+### Page "Forgot password" (`src/app/forgot-password/page.tsx`)
 
-Client Component (`"use client"`). Formulaire à un champ (email).
+Client Component (`"use client"`). Formulaire à un champ (email). UI entièrement en anglais (session 2026-06-29).
 
 **Flux :**
 1. Appel `supabase.auth.resetPasswordForEmail(email, { redirectTo: <origin>/auth/callback?next=/reset-password })`.
-2. Affiche un message de confirmation après envoi ("Vérifiez votre boîte mail").
+2. Bascule vers un état "sent" affichant un message de confirmation ("Email sent").
 3. Pas de redirect — l'utilisateur reste sur la page de confirmation.
+
+**Animations d'entrée séquencées (session 2026-06-29) :**
+
+Deux états distincts portent chacun des animations d'entrée via `photo-reveal` sur la card :
+
+| État | Élément | Classe | Animation | Délai |
+|------|---------|--------|-----------|-------|
+| Formulaire | div card | `photo-reveal` | Zoom+blur entrée (scale 0.25→1 + blur 14px→0, 0.65s) | — |
+| Formulaire | `<h1>` "Forgot password" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Formulaire | sous-titre | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.35s |
+| Formulaire | label "Email" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.55s |
+| Formulaire | bouton "Send reset link" | `bubble-reveal` | Dévoilement circulaire depuis le centre via `clip-path: circle(0%→75%)` | 0.75s |
+| Formulaire | lien "Back to sign in" | `fade-up` | Fade-in + `translateY(16px→0)` | 0.95s |
+| Confirmation | div card | `photo-reveal` | Même animation que l'état formulaire | — |
+| Confirmation | `<h1>` "Email sent" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Confirmation | texte de confirmation | `fade-up` | Fade-in + `translateY(16px→0)` | 0.35s |
+| Confirmation | lien "Back to sign in" | `fade-up` | Fade-in + `translateY(16px→0)` | 0.55s |
+
+Toutes les classes CSS utilisées (`photo-reveal`, `reveal-ltr`, `bubble-reveal`, `fade-up`) sont définies dans `globals.css` (sessions précédentes). Aucune nouvelle animation ajoutée.
 
 ### Page "Réinitialisation du mot de passe" (`src/app/reset-password/page.tsx` + `src/app/reset-password/ResetPasswordForm.tsx`)
 

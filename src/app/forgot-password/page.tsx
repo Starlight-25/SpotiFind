@@ -33,18 +33,18 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-sm p-8 rounded-xl border border-border bg-surface flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">Email envoyé</h1>
-          <p className="text-sm text-muted">
-            Un lien de réinitialisation a été envoyé à{" "}
-            <span className="text-foreground">{email}</span>. Vérifie ta boîte
-            mail.
+        <div className="photo-reveal w-full max-w-sm p-8 rounded-xl border border-border bg-surface flex flex-col gap-4">
+          <h1 className="reveal-ltr text-2xl font-bold">Email sent</h1>
+          <p className="fade-up text-sm text-muted" style={{ animationDelay: "0.35s" }}>
+            A reset link has been sent to{" "}
+            <span className="text-foreground">{email}</span>. Check your inbox.
           </p>
           <Link
             href="/login"
-            className="text-sm text-center text-muted hover:text-foreground transition-colors"
+            className="fade-up text-sm text-center text-muted hover:text-foreground transition-colors"
+            style={{ animationDelay: "0.55s" }}
           >
-            Retour à la connexion
+            Back to sign in
           </Link>
         </div>
       </div>
@@ -53,14 +53,14 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm p-8 rounded-xl border border-border bg-surface">
-        <h1 className="text-2xl font-bold mb-2">Mot de passe oublié</h1>
-        <p className="text-sm text-muted mb-6">
-          Saisis ton email pour recevoir un lien de réinitialisation.
+      <div className="photo-reveal w-full max-w-sm p-8 rounded-xl border border-border bg-surface">
+        <h1 className="reveal-ltr text-2xl font-bold mb-2">Forgot password</h1>
+        <p className="reveal-ltr text-sm text-muted mb-6" style={{ animationDelay: "0.35s" }}>
+          Enter your email to receive a reset link.
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm text-muted">
+            <label htmlFor="email" className="reveal-ltr text-sm text-muted" style={{ animationDelay: "0.55s" }}>
               Email
             </label>
             <input
@@ -76,14 +76,15 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 py-2 rounded-lg bg-spotify text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="bubble-reveal mt-2 py-2 rounded-lg bg-spotify text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            style={{ animationDelay: "0.75s" }}
           >
-            {loading ? "Envoi..." : "Envoyer le lien"}
+            {loading ? "Sending..." : "Send reset link"}
           </button>
         </form>
-        <p className="mt-4 text-sm text-center text-muted">
+        <p className="fade-up mt-4 text-sm text-center text-muted" style={{ animationDelay: "0.95s" }}>
           <Link href="/login" className="text-foreground hover:underline">
-            Retour à la connexion
+            Back to sign in
           </Link>
         </p>
       </div>

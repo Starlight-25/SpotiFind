@@ -3,6 +3,12 @@ const nextConfig = {
   experimental: {
     instrumentationHook: true,
   },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.cache = { type: "memory" };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

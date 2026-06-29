@@ -9,6 +9,36 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **auth — animations d'entrée page forgot-password** : `src/app/forgot-password/page.tsx` — `photo-reveal` sur la card dans les deux états (formulaire et confirmation) ; séquence staggerée sur l'état formulaire (`reveal-ltr` sur h1 "Forgot password" et sous-titre, `reveal-ltr` sur le label "Email", `bubble-reveal` sur le bouton "Send reset link", `fade-up` sur le lien "Back to sign in", délais de 0.15s à 0.95s) ; état "sent" animé (`reveal-ltr` sur h1 "Email sent", `fade-up` sur le texte de confirmation et le lien retour) ; traduction complète de l'UI en anglais ; aucune nouvelle animation CSS ajoutée (réutilise les classes existantes)
+
+- **auth — animations d'entrée page signup** : `src/app/signup/page.tsx` — classe `photo-reveal` sur le div card (zoom+blur identique à la page login) ; séquence staggerée sur 6 éléments (`reveal-ltr` sur h1 "Create an account" et 3 labels, `bubble-reveal` sur le bouton "Create account", `fade-up` sur le paragraphe "Already have an account?") avec délais de 0.15s à 1.15s ; aucune nouvelle animation CSS ajoutée (réutilise les classes définies pour la page login) ; traduction complète de l'UI en anglais (libellés + message d'erreur validation "Passwords do not match.")
+
+- **auth — animation bouton login `bubble-reveal`** : `src/app/login/LoginForm.tsx` — remplacement de la classe `pop-in` par `bubble-reveal` sur le bouton "Se connecter" ; `globals.css` — nouvelle animation `@keyframes bubbleReveal` (clip-path: circle(0% at 50% 50%) → circle(75% at 50% 50%), 0.55s ease forwards), sans overshoot
+
+- **auth — animations d'entrée séquencées page login** : `src/app/login/LoginForm.tsx` — séquence staggerée sur 6 éléments du formulaire (`reveal-ltr` sur h1 et labels, `reveal-rtl` sur le lien "Mot de passe oublié ?", `pop-in` sur le bouton, `fade-up` sur le paragraphe d'inscription) avec délais de 0.15s à 0.95s ; `globals.css` — ajout des animations `@keyframes revealRTL`/`.reveal-rtl` (clip-path droite→gauche) et `@keyframes fadeUp`/`.fade-up` (opacity + translateY)
+
+- **auth — animation d'entrée page login** : `src/app/login/LoginForm.tsx` — classe `photo-reveal` ajoutée sur le div racine du formulaire de connexion ; animation `photoReveal` définie dans `globals.css` (scale 0.25→1 + blur 14px→0, 0.65s cubic-bezier)
+
+- **explore — animations d'entrée et scroll** : `src/app/explore/page.tsx` — `header-enter` sur le lien retour, `reveal-ltr` sur le conteneur `GenreChips` ; `AlbumMosaic` : chaque carte reçoit la classe `scroll-fade-in` avec `transitionDelay` échelonné (55ms × index, max 440ms) ; `<ScrollAnimator deps={[albums]} />` ajouté dans la page pour re-déclencher les animations au changement de genre ou au refresh
+
+### Fixed
+
+- **home — animations entrée et scroll** : `src/components/HomeCharts.tsx` — ajout de `reveal-ltr` sur les 3 titres de section (Trending Artists / Pop / Rock) et `transitionDelay` échelonné sur les cartes albums ; `src/components/GenreRow.tsx` — `reveal-ltr` sur le titre de section, classe `scroll-fade-in` avec `transitionDelay` échelonné sur chaque carte album, `<ScrollAnimator deps={[albums]} />` pour re-déclencher les animations après chargement des albums
+
+- **ui — ScrollAnimator scroll-driven restauré** : `src/components/ScrollAnimator.tsx` — suppression de `unobserve` ; le comportement scroll-driven est rétabli : `.visible` retiré quand l'élément quitte le viewport, rajouté à la ré-entrée, l'animation `scrollFadeIn` rejoue à chaque passage
+
+- **ui — ScrollAnimator refactor** : `src/components/ScrollAnimator.tsx` — remplacement de la logique `transition: opacity` (perturbée par React qui met à jour `transitionDelay` inline et relance la cascade CSS) par `@keyframes scrollFadeIn` dans `globals.css` ; threshold abaissé à 0.08
+
+- **ui — ScrollAnimator fallback viewport** : `src/components/ScrollAnimator.tsx` — ajout d'un second `requestAnimationFrame` après la création de l'`IntersectionObserver` pour activer immédiatement les éléments `.scroll-fade-in` déjà dans le viewport si le callback IO tarde à se déclencher (corrige les albums invisibles sur la home et la page explore)
+
+- **home — chargement en deux étapes** : `src/components/HomeContent.tsx` + `src/components/HomeCharts.tsx` — `useHomeCharts` remonté dans `HomeContent` ; les `GenreRow` ne se mountent (et ne fetchent) qu'après `chartsLoading === false`, supprimant l'affichage décalé albums-avant-artistes ; `HomeCharts` reçoit `data/loading/error` en props et affiche un skeleton structuré (artistes + 2 grilles albums) pendant le chargement pour éviter le layout shift
+
+- **search — réduction des appels d'enrichissement artistes** : `src/app/api/search/route.ts` — `artist.search` limité à 5 résultats (au lieu de 10) réduisant les appels `enrichArtistThumb` TheAudioDB de moitié ; `track.search` conserve 20 résultats avec enrichissement complet
+
+- **config — cache webpack mémoire en dev** : `next.config.mjs` — ajout `webpack: config.cache = { type: "memory" }` en développement pour corriger la race condition Windows ENOENT lors du rename des fichiers `.pack.gz_` après suppression du dossier `.next`
+
+### Added
+
 - **auth — page signup** : `src/app/signup/page.tsx` — Client Component, formulaire création de compte email + mot de passe (confirmation de mot de passe avec validation côté client, minLength=6) ; appelle `supabase.auth.signUp` via `createClient()` ; redirige vers `/` après inscription réussie ; lien vers `/login`
 
 - **auth — page login + import favoris** : `src/app/login/page.tsx` (Server Component wrapper `<Suspense>`) + `src/app/login/LoginForm.tsx` (Client Component) — formulaire connexion email/password via `supabase.auth.signInWithPassword` ; détection des favoris localStorage post-connexion et affichage de `ImportFavouritesModal` si présents ; `handleImportDecision` effectue un upsert Supabase `favourites` (`onConflict: user_id,kind,name,artist`) si l'utilisateur accepte, puis nettoie localStorage ; paramètre `?redirect=<pathname>` supporté
@@ -68,6 +98,20 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 - **favourites — lien cœur header HomeContent** : `src/components/HomeContent.tsx` — le `<Link>` du header pointe désormais vers `/login?redirect=/favourites` si `isAuthenticated === false` (lu depuis `useFavourites()`), et vers `/favourites` si authentifié ; complète la protection middleware (serveur) par une redirection client-side dès le clic
 
+- **explore — lignes genre sur la homepage** : 6 lignes de genre (`GenreRow`) intégrées dans `HomeContent.tsx` sous `HomeCharts` (visible uniquement sans requête active) ; liste de genres fixe `["Hip-Hop", "Electronic", "Jazz", "Classical", "R&B", "Metal"]` ; import `GenreRow` résolu après merge `feat/style-animations` ← `origin/main`
+
+- **explore — page /explore** : `src/app/explore/page.tsx` — grille d'albums par genre ; composants `AlbumMosaic`, `MosaicCard`, `GenreChips` ; route API `GET /api/explore?tag=<genre>&limit=<n>` (Last.fm `tag.getTopAlbums`) ; fonctionnalité "rafraîchir" ; bouton boussole dans le header
+
+- **scroll animation — fix RAF fallback `ScrollAnimator`** : second `requestAnimationFrame` imbriqué ajouté dans `src/components/ScrollAnimator.tsx` — si l'`IntersectionObserver` tarde à se déclencher, le RAF vérifie `getBoundingClientRect()` et ajoute directement `.visible` aux éléments `.scroll-fade-in` déjà dans le viewport ; corrige une régression où les éléments restaient `opacity:0` indéfiniment dans certains navigateurs/contextes
+
+### Changed
+
+- **explore — animations d'entrée `AlbumMosaic`** : chaque `MosaicCard` dans `src/components/AlbumMosaic.tsx` est désormais wrappée dans un `<div class="scroll-fade-in">` avec `transitionDelay` échelonné (55ms × index, max 440ms) — effet d'entrée en cascade au chargement de la grille
+
+- **explore — polish page `/explore`** : `src/app/explore/page.tsx` enrichi avec `<ScrollAnimator deps={[albums]} />` (re-trigger à chaque changement de genre), classe `header-enter` sur le lien retour, wrapper `<div class="reveal-ltr">` autour de `GenreChips`
+
 ### Removed
+
+- **ui — badge compteur historique** : `src/components/HomeContent.tsx` — suppression du `<span>` affichant `historique.length` en badge `-top-1 -right-1` sur le bouton Historique du header ; `aria-label` simplifié de `Historique (N)` → `Historique`
 
 ### BDD

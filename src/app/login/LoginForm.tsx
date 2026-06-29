@@ -89,11 +89,11 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm p-8 rounded-xl border border-border bg-surface">
-        <h1 className="text-2xl font-bold mb-6">Connexion</h1>
+      <div className="photo-reveal w-full max-w-sm p-8 rounded-xl border border-border bg-surface">
+        <h1 className="reveal-ltr text-2xl font-bold mb-6">Sign in</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm text-muted">
+            <label htmlFor="email" className="reveal-ltr text-sm text-muted" style={{ animationDelay: "0.35s" }}>
               Email
             </label>
             <input
@@ -107,14 +107,15 @@ export default function LoginForm() {
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center">
-              <label htmlFor="password" className="text-sm text-muted">
-                Mot de passe
+              <label htmlFor="password" className="reveal-ltr text-sm text-muted" style={{ animationDelay: "0.55s" }}>
+                Password
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-muted hover:text-foreground transition-colors"
+                className="reveal-rtl text-xs text-muted hover:text-foreground transition-colors"
+                style={{ animationDelay: "0.55s" }}
               >
-                Mot de passe oublié ?
+                Forgot password?
               </Link>
             </div>
             <input
@@ -130,15 +131,16 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 py-2 rounded-lg bg-spotify text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="bubble-reveal mt-2 py-2 rounded-lg bg-spotify text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            style={{ animationDelay: "0.75s" }}
           >
-            {loading ? "Connexion..." : "Se connecter"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
-        <p className="mt-4 text-sm text-center text-muted">
-          Pas encore de compte ?{" "}
+        <p className="fade-up mt-4 text-sm text-center text-muted" style={{ animationDelay: "0.95s" }}>
+          Don&apos;t have an account?{" "}
           <Link href="/signup" className="text-foreground hover:underline">
-            S&apos;inscrire
+            Sign up
           </Link>
         </p>
       </div>

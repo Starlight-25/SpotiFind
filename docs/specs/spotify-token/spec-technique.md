@@ -1,4 +1,6 @@
-# Spec Technique — Gestion du token Spotify
+# ~~Spec Technique — Gestion du token Spotify~~ [OBSOLÈTE]
+
+> **[OBSOLÈTE — 2026-06-28]** Le module `src/lib/spotify.ts` et ses tests ont été supprimés. L'authentification Spotify (Client Credentials) n'est plus utilisée. Conservé à titre d'historique.
 
 | Champ         | Valeur              |
 |---------------|---------------------|

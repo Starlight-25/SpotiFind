@@ -6,7 +6,7 @@
 | Auditeur          | retro-auditor       |
 | Source            | Rétro-ingénierie    |
 | Features auditées | 7                   |
-| ADRs identifiés   | 4                   |
+| ADRs identifiés   | 3 (RETRO-003 supprimé — Spotify retiré) |
 
 ---
 
@@ -31,15 +31,20 @@ L'architecture suit un pattern BFF (Backend-for-Frontend) : tous les appels vers
 
 ## Cartographie fonctionnelle
 
-| # | Feature         | État        | Complexité | Tests | Spec                              |
-|---|-----------------|-------------|------------|-------|-----------------------------------|
-| 1 | search          | Fonctionnel | Moyenne    | Non   | docs/specs/search/                |
-| 2 | proxy-lastfm    | Fonctionnel | Faible     | Non   | docs/specs/proxy-lastfm/          |
-| 3 | proxy-spotify   | Fonctionnel | Faible     | Non   | docs/specs/proxy-spotify/         |
-| 4 | spotify-token   | Fonctionnel | Moyenne    | Oui   | docs/specs/spotify-token/         |
-| 5 | artist-page     | Stub vide   | Haute      | Non   | docs/specs/artist-page/           |
-| 6 | album-page      | Stub vide   | Haute      | Non   | docs/specs/album-page/            |
-| 7 | favourites      | Stub vide   | Moyenne    | Non   | docs/specs/favourites/            |
+> Mise à jour 2026-06-28 — L'API Spotify a été retirée du projet. Les 3 stubs ont été implémentés. Nouvelles features ajoutées : explore, historique, auth.
+
+| # | Feature         | État              | Complexité | Tests | Spec                                    |
+|---|-----------------|-------------------|------------|-------|-----------------------------------------|
+| 1 | search          | Fonctionnel       | Moyenne    | Non   | docs/specs/search/                      |
+| 2 | proxy-lastfm    | Fonctionnel       | Faible     | Non   | docs/specs/proxy-lastfm/               |
+| 3 | proxy-spotify   | **SUPPRIMÉ**      | —          | —     | docs/specs/proxy-spotify/ [OBSOLÈTE]   |
+| 4 | spotify-token   | **SUPPRIMÉ**      | —          | —     | docs/specs/spotify-token/ [OBSOLÈTE]   |
+| 5 | artist-page     | **Implémenté**    | Haute      | Non   | docs/specs/artist-page/                |
+| 6 | album-page      | **Implémenté**    | Haute      | Non   | docs/specs/album-page/                 |
+| 7 | favourites      | **Implémenté**    | Moyenne    | Non   | docs/specs/favourites/                 |
+| 8 | explore         | **Implémenté**    | Moyenne    | Non   | —                                       |
+| 9 | historique      | **Implémenté**    | Faible     | Non   | —                                       |
+| 10| auth            | **Implémenté**    | Moyenne    | Non   | —                                       |
 
 ## Points forts
 

@@ -71,6 +71,16 @@
   animation-delay: 0.15s;
 }
 
+@keyframes revealRTL {
+  from { clip-path: inset(0 0 0 100%); }
+  to   { clip-path: inset(0 0 0 0%); }
+}
+
+.reveal-rtl {
+  animation: revealRTL 1s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.15s;
+}
+
 @keyframes photoReveal {
   from {
     opacity: 0.6;
@@ -98,6 +108,24 @@
 .pop-in {
   animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   animation-delay: 0.2s;
+}
+
+@keyframes bubbleReveal {
+  from { clip-path: circle(0% at 50% 50%); }
+  to   { clip-path: circle(75% at 50% 50%); }
+}
+
+.bubble-reveal {
+  animation: bubbleReveal 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @keyframes slideFromTop {
@@ -137,13 +165,25 @@
 
 .scroll-fade-in {
   opacity: 0;
-  transform: translateY(var(--slide-from, 14px));
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateY(14px);
 }
 
 .scroll-fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: scrollFadeInUp 0.45s ease forwards;
+}
+
+.scroll-fade-in.from-top.visible {
+  animation: scrollFadeInDown 0.45s ease forwards;
+}
+
+@keyframes scrollFadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrollFadeInDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes heartPop {
@@ -172,6 +212,150 @@
   animation: particleFly 0.55s ease-out forwards;
   animation-delay: var(--p-delay, 0ms);
   transform-origin: center;
+}
+
+/* === Glass Button === */
+.glass-button-wrap {
+  --anim-time: 0.4s;
+  --anim-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --border-width: clamp(1px, 0.0625em, 4px);
+  position: relative;
+  display: inline-flex;
+  z-index: 2;
+  transform-style: preserve-3d;
+  transition: transform var(--anim-time) var(--anim-ease);
+}
+
+.glass-button-wrap:hover  { transform: scale(1.06) translateZ(0); }
+.glass-button-wrap:active { transform: scale(0.94) translateZ(0); }
+
+.glass-button {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  transition: all var(--anim-time) var(--anim-ease);
+}
+
+/* Le verre lui-même via pseudo-élément — mode clair (fond blanc) */
+.glass-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.80) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.40) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: var(--border-width) solid rgba(0, 0, 0, 0.09);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+  z-index: -1;
+  pointer-events: none;
+  transition: box-shadow var(--anim-time) var(--anim-ease);
+}
+
+/* Mode sombre — fond noir, verre blanc translucide */
+.dark .glass-button::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.20);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Hover : ombre passe du bas vers le haut */
+.glass-button-wrap:hover .glass-button::before {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 -4px 12px rgba(0, 0, 0, 0.18);
+}
+.dark .glass-button-wrap:hover .glass-button::before {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 -4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.glass-button-text {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  letter-spacing: -0.05em;
+}
+
+/* Shadow flouée en dessous pour la profondeur */
+.glass-button-shadow {
+  position: absolute;
+  bottom: -3px;
+  left: 10%;
+  right: 10%;
+  height: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  filter: blur(6px);
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  transition: transform var(--anim-time) var(--anim-ease);
+}
+
+/* Hover : le div ombre remonte juste au-dessus du bouton
+   Géométrie : height=50% du wrapper (shadow=H/2), bottom=-3px
+   → top courant = H/2 + 3px ; cible = -3px → delta = -(H/2 + 6px) = -(100% + 6px) */
+.glass-button-wrap:hover .glass-button-shadow {
+  transform: translateY(calc(-100% - 6px));
+}
+
+/* === Glass Pill (indicateur glissant dans GlassNavPill) === */
+.glass-pill {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  border-radius: 0.75rem;
+}
+
+.glass-pill-shadow {
+  background: rgba(0, 0, 0, 0.2);
+  filter: blur(6px);
+  border-radius: 0.75rem;
 }
 
 @layer components {
