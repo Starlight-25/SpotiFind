@@ -9,6 +9,12 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **auth — animation bouton login `bubble-reveal`** : `src/app/login/LoginForm.tsx` — remplacement de la classe `pop-in` par `bubble-reveal` sur le bouton "Se connecter" ; `globals.css` — nouvelle animation `@keyframes bubbleReveal` (clip-path: circle(0% at 50% 50%) → circle(75% at 50% 50%), 0.55s ease forwards), sans overshoot
+
+- **auth — animations d'entrée séquencées page login** : `src/app/login/LoginForm.tsx` — séquence staggerée sur 6 éléments du formulaire (`reveal-ltr` sur h1 et labels, `reveal-rtl` sur le lien "Mot de passe oublié ?", `pop-in` sur le bouton, `fade-up` sur le paragraphe d'inscription) avec délais de 0.15s à 0.95s ; `globals.css` — ajout des animations `@keyframes revealRTL`/`.reveal-rtl` (clip-path droite→gauche) et `@keyframes fadeUp`/`.fade-up` (opacity + translateY)
+
+- **auth — animation d'entrée page login** : `src/app/login/LoginForm.tsx` — classe `photo-reveal` ajoutée sur le div racine du formulaire de connexion ; animation `photoReveal` définie dans `globals.css` (scale 0.25→1 + blur 14px→0, 0.65s cubic-bezier)
+
 - **explore — animations d'entrée et scroll** : `src/app/explore/page.tsx` — `header-enter` sur le lien retour, `reveal-ltr` sur le conteneur `GenreChips` ; `AlbumMosaic` : chaque carte reçoit la classe `scroll-fade-in` avec `transitionDelay` échelonné (55ms × index, max 440ms) ; `<ScrollAnimator deps={[albums]} />` ajouté dans la page pour re-déclencher les animations au changement de genre ou au refresh
 
 ### Fixed

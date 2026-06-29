@@ -3,8 +3,8 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.6.3               |
-| Date    | 2026-06-25          |
+| Version | 0.6.5               |
+| Date    | 2026-06-29          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
 
@@ -266,7 +266,27 @@ Client Component (`"use client"`). Affiche une modal de décision post-connexion
 ### Page `/login` (`src/app/login/page.tsx` + `src/app/login/LoginForm.tsx`)
 
 - `login/page.tsx` : Server Component wrapper — encapsule `LoginForm` dans un `<Suspense>` (requis pour `useSearchParams` dans un Client Component sous Next.js App Router).
-- `LoginForm.tsx` : Client Component (`"use client"`). Formulaire email + mot de passe.
+- `LoginForm.tsx` : Client Component (`"use client"`). Formulaire email + mot de passe. Le div racine du formulaire (`.w-full.max-w-sm.p-8.rounded-xl`) porte la classe `photo-reveal` — animation d'entrée définie dans `globals.css` : `scale 0.25 → 1` + `blur 14px → 0`, durée 0.65s, `cubic-bezier` personnalisé.
+
+**Animations d'entrée séquencées (session 2026-06-29) :**
+
+Chaque élément du formulaire porte une classe d'animation avec un délai croissant, créant une séquence d'apparition staggerée :
+
+| Élément | Classe | Animation | Délai |
+|---------|--------|-----------|-------|
+| `<h1>` "Connexion" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Label "Email" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.35s |
+| Label "Mot de passe" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.55s |
+| Lien "Mot de passe oublié ?" | `reveal-rtl` | Dévoilement droite→gauche via `clip-path` | 0.55s |
+| Bouton "Se connecter" | `bubble-reveal` | Dévoilement circulaire depuis le centre via `clip-path: circle(0% → 75%)` sans rebond | 0.55s |
+| Paragraphe "Pas encore de compte ?" | `fade-up` | Fade-in + `translateY(16px → 0)` | 0.95s |
+
+**Animations CSS ajoutées dans `globals.css` (session 2026-06-29) :**
+
+- `@keyframes revealRTL` + `.reveal-rtl` : dévoilement droite→gauche via `clip-path: inset(0 100% 0 0 → 0 0% 0 0)`, pendant `0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards`.
+- `@keyframes fadeUp` + `.fade-up` : `opacity: 0 + translateY(16px) → opacity: 1 + translateY(0)`, pendant `0.5s ease forwards`.
+
+> Les animations `reveal-ltr` était déjà définie dans `globals.css` (sessions précédentes). `pop-in` a été remplacée par `bubble-reveal` (session 2026-06-29).
 
 **Flux de connexion :**
 1. `supabase.auth.signInWithPassword({ email, password })` via `createClient()`.
