@@ -9,6 +9,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) · Versioning 
 
 ### Added
 
+- **auth — animations d'entrée page forgot-password** : `src/app/forgot-password/page.tsx` — `photo-reveal` sur la card dans les deux états (formulaire et confirmation) ; séquence staggerée sur l'état formulaire (`reveal-ltr` sur h1 "Forgot password" et sous-titre, `reveal-ltr` sur le label "Email", `bubble-reveal` sur le bouton "Send reset link", `fade-up` sur le lien "Back to sign in", délais de 0.15s à 0.95s) ; état "sent" animé (`reveal-ltr` sur h1 "Email sent", `fade-up` sur le texte de confirmation et le lien retour) ; traduction complète de l'UI en anglais ; aucune nouvelle animation CSS ajoutée (réutilise les classes existantes)
+
 - **auth — animations d'entrée page signup** : `src/app/signup/page.tsx` — classe `photo-reveal` sur le div card (zoom+blur identique à la page login) ; séquence staggerée sur 6 éléments (`reveal-ltr` sur h1 "Create an account" et 3 labels, `bubble-reveal` sur le bouton "Create account", `fade-up` sur le paragraphe "Already have an account?") avec délais de 0.15s à 1.15s ; aucune nouvelle animation CSS ajoutée (réutilise les classes définies pour la page login) ; traduction complète de l'UI en anglais (libellés + message d'erreur validation "Passwords do not match.")
 
 - **auth — animation bouton login `bubble-reveal`** : `src/app/login/LoginForm.tsx` — remplacement de la classe `pop-in` par `bubble-reveal` sur le bouton "Se connecter" ; `globals.css` — nouvelle animation `@keyframes bubbleReveal` (clip-path: circle(0% at 50% 50%) → circle(75% at 50% 50%), 0.55s ease forwards), sans overshoot

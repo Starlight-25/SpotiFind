@@ -3,7 +3,7 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.6.7               |
+| Version | 0.6.8               |
 | Date    | 2026-06-29          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
@@ -360,14 +360,33 @@ Route `GET /auth/callback` côté serveur. Échange le `code` PKCE reçu en quer
 
 Utilisé comme `redirectTo` pour le reset de mot de passe : Supabase envoie un email avec un lien pointant vers `/auth/callback?next=/reset-password`, ce qui établit la session avant de rediriger l'utilisateur vers le formulaire de nouveau mot de passe.
 
-### Page "Mot de passe oublié" (`src/app/forgot-password/page.tsx`)
+### Page "Forgot password" (`src/app/forgot-password/page.tsx`)
 
-Client Component (`"use client"`). Formulaire à un champ (email).
+Client Component (`"use client"`). Formulaire à un champ (email). UI entièrement en anglais (session 2026-06-29).
 
 **Flux :**
 1. Appel `supabase.auth.resetPasswordForEmail(email, { redirectTo: <origin>/auth/callback?next=/reset-password })`.
-2. Affiche un message de confirmation après envoi ("Vérifiez votre boîte mail").
+2. Bascule vers un état "sent" affichant un message de confirmation ("Email sent").
 3. Pas de redirect — l'utilisateur reste sur la page de confirmation.
+
+**Animations d'entrée séquencées (session 2026-06-29) :**
+
+Deux états distincts portent chacun des animations d'entrée via `photo-reveal` sur la card :
+
+| État | Élément | Classe | Animation | Délai |
+|------|---------|--------|-----------|-------|
+| Formulaire | div card | `photo-reveal` | Zoom+blur entrée (scale 0.25→1 + blur 14px→0, 0.65s) | — |
+| Formulaire | `<h1>` "Forgot password" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Formulaire | sous-titre | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.35s |
+| Formulaire | label "Email" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.55s |
+| Formulaire | bouton "Send reset link" | `bubble-reveal` | Dévoilement circulaire depuis le centre via `clip-path: circle(0%→75%)` | 0.75s |
+| Formulaire | lien "Back to sign in" | `fade-up` | Fade-in + `translateY(16px→0)` | 0.95s |
+| Confirmation | div card | `photo-reveal` | Même animation que l'état formulaire | — |
+| Confirmation | `<h1>` "Email sent" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Confirmation | texte de confirmation | `fade-up` | Fade-in + `translateY(16px→0)` | 0.35s |
+| Confirmation | lien "Back to sign in" | `fade-up` | Fade-in + `translateY(16px→0)` | 0.55s |
+
+Toutes les classes CSS utilisées (`photo-reveal`, `reveal-ltr`, `bubble-reveal`, `fade-up`) sont définies dans `globals.css` (sessions précédentes). Aucune nouvelle animation ajoutée.
 
 ### Page "Réinitialisation du mot de passe" (`src/app/reset-password/page.tsx` + `src/app/reset-password/ResetPasswordForm.tsx`)
 
