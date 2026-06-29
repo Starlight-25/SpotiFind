@@ -3,7 +3,7 @@
 | Champ   | Valeur              |
 |---------|---------------------|
 | Module  | favourites          |
-| Version | 0.6.5               |
+| Version | 0.6.7               |
 | Date    | 2026-06-29          |
 | Auteur  | update-writer       |
 | Statut  | En cours            |
@@ -305,14 +305,29 @@ Client Component (`"use client"`). Formulaire de création de compte email + mot
 
 **Champs :** email, mot de passe (minLength=6), confirmation mot de passe (minLength=6).
 
-**Validation côté client :** comparaison `password !== confirm` avant appel Supabase. Si non correspondent → affiche `"Les mots de passe ne correspondent pas."` sans appel réseau.
+**Validation côté client :** comparaison `password !== confirm` avant appel Supabase. Si non correspondent → affiche `"Passwords do not match."` sans appel réseau.
 
 **Flux :**
 1. `supabase.auth.signUp({ email, password })` via `createClient()`.
 2. Si erreur → affiche `error.message` dans un `<p className="text-red-400">`.
 3. Si succès → `router.push("/")`.
 
-**Lien de navigation :** lien vers `/login` ("Déjà un compte ?") via `<Link>`.
+**Lien de navigation :** lien vers `/login` ("Already have an account?") via `<Link>`.
+
+**Animations d'entrée séquencées (session 2026-06-29) :**
+
+Le div card porte la classe `photo-reveal` (zoom+blur à l'entrée, identique à la page login). Chaque élément du formulaire porte une classe d'animation avec un délai croissant :
+
+| Élément | Classe | Animation | Délai |
+|---------|--------|-----------|-------|
+| `<h1>` "Create an account" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.15s |
+| Label "Email" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.35s |
+| Label "Password" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.55s |
+| Label "Confirm password" | `reveal-ltr` | Dévoilement gauche→droite via `clip-path` | 0.75s |
+| Bouton "Create account" | `bubble-reveal` | Dévoilement circulaire depuis le centre via `clip-path: circle(0% → 75%)` sans rebond | 0.95s |
+| Paragraphe "Already have an account?" | `fade-up` | Fade-in + `translateY(16px → 0)` | 1.15s |
+
+Les classes CSS utilisées (`photo-reveal`, `reveal-ltr`, `bubble-reveal`, `fade-up`) sont définies dans `globals.css` (sessions précédentes — login). Aucune nouvelle animation ajoutée.
 
 ---
 
